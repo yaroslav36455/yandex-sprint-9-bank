@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: exchange-generator
+
+clients:
+  exchange-service:
+    url: "http://yandex-sprint-9-exchange:8080"

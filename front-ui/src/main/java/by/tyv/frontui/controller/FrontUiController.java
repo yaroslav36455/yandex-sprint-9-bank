@@ -1,12 +1,13 @@
 package by.tyv.frontui.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.reactive.result.view.RedirectView;
 import reactor.core.publisher.Mono;
 
 @Controller
-public class FronUiController {
+public class FrontUiController {
 
     // а) GET "/" - редирект на "/main"
     @GetMapping("/")
@@ -41,7 +42,7 @@ public class FronUiController {
                 "transferOtherErrors" - список ошибок при переводе на счет другого пользователя (null, если не выполнялся перевод)
     */
     @GetMapping("/main")
-    public Mono<String> getMainPage() {
+    public Mono<String> getMainPage(Model model) {
         return Mono.just("main");
     }
 

@@ -6,6 +6,7 @@ plugins {
 ext {
     springBootVersion = '3.5.4'
     lombokVersion = '1.18.34'
+    mapstructVersion = '1.6.3'
 }
 
 subprojects {
@@ -36,6 +37,10 @@ subprojects {
         annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
         testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
         testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+        annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+        testImplementation 'io.projectreactor:reactor-test'
+        testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
     }
 
     test {
