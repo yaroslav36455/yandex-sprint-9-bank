@@ -3,6 +3,9 @@ package by.tyv.frontui.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.result.view.RedirectView;
 import reactor.core.publisher.Mono;
 
@@ -44,6 +47,24 @@ public class FrontUiController {
     @GetMapping("/main")
     public Mono<String> getMainPage(Model model) {
         return Mono.just("main");
+    }
+
+    /*
+    д) POST "/user/{login}/сash" - эндпоинт внесения/снятия денег (записывает список ошибок, если есть, в cashErrors)
+        Параметры:
+            login - логин пользователя
+            currency - строка с валютой
+            value - сумма внесения/снятия
+            action - действие (enum PUT иди GET)
+        Возвращает:
+            редирект на "/main"
+    */
+    @PostMapping("/user/{login}/сash")
+    public Mono<RedirectView> postCash(@PathVariable("login") String login/*,
+                                       @ModelAttribute CashRequestDto cashRequestDto*/) {
+//        return cashService.cashOperation(login, cashRequestDto)
+//                .thenReturn(new RedirectView("/main"));
+        return Mono.just(new RedirectView("/main"));
     }
 
     /*

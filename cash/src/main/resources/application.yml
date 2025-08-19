@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: cash
+
+clients:
+  blocker-service:
+    url: "http://yandex-sprint-9-blocker:8080"
+  account-service:
+    url: "http://yandex-sprint-9-account:8080"
+  notification-service:
+    url: "http://yandex-sprint-9-notification:8080"

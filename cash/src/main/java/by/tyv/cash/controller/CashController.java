@@ -1,26 +1,19 @@
 package by.tyv.cash.controller;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.result.view.RedirectView;
+import by.tyv.cash.model.dto.CashRequestDto;
+import by.tyv.cash.service.CashService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @RestController
 public class CashController {
+    private final CashService cashService;
 
-    /*
-    д) POST "/user/{login}/сash" - эндпоинт внесения/снятия денег (записывает список ошибок, если есть, в cashErrors)
-        Параметры:
-            login - логин пользователя
-            currency - строка с валютой
-            value - сумма внесения/снятия
-            action - действие (enum PUT иди GET)
-        Возвращает:
-            редирект на "/main"
-    */
-    @PostMapping("/user/{login}/сash")
-    public Mono<RedirectView> postCash(@PathVariable("login") String login) {
-        return Mono.just(new RedirectView("/main"));
+    @PostMapping("/cash/{login}")
+    public Mono<Void> postCash(@PathVariable("login") String login,
+                               @RequestBody CashRequestDto cashRequestDto) {
+        return cashService.cashOperation(login, cashRequestDto);
     }
 }

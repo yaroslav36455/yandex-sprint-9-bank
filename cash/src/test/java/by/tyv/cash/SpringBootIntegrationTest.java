@@ -1,0 +1,59 @@
+package by.tyv.cash;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
+public class SpringBootIntegrationTest {
+    @Autowired
+    protected ObjectMapper objectMapper;
+    @Autowired
+    protected WebTestClient webClient;
+
+    protected static WireMockServer wireMockServerBlocker = new WireMockServer(
+            WireMockConfiguration.options().dynamicPort()
+    );
+    protected static WireMockServer wireMockServerAccount = new WireMockServer(
+            WireMockConfiguration.options().dynamicPort()
+    );
+    protected static WireMockServer wireMockServerNotification = new WireMockServer(
+            WireMockConfiguration.options().dynamicPort()
+    );
+
+    static {
+        wireMockServerBlocker.start();
+        wireMockServerAccount.start();
+        wireMockServerNotification.start();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        wireMockServerBlocker.stop();
+        wireMockServerAccount.stop();
+        wireMockServerNotification.stop();
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        wireMockServerBlocker.resetAll();
+        wireMockServerAccount.resetAll();
+        wireMockServerNotification.resetAll();
+    }
+
+    @DynamicPropertySource
+    static void props(DynamicPropertyRegistry registry) {
+        registry.add("clients.blocker-service.url", () -> "http://localhost:" + wireMockServerBlocker.port());
+        registry.add("clients.account-service.url", () -> "http://localhost:" + wireMockServerAccount.port());
+        registry.add("clients.notification-service.url", () -> "http://localhost:" + wireMockServerNotification.port());
+    }
+}
