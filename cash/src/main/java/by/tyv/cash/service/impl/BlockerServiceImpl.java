@@ -23,7 +23,7 @@ public class BlockerServiceImpl implements BlockerService {
 
     @Override
     public Mono<Boolean> isAvailableOperation(String login, OperationCashRequestDto operationCashRequestDto) {
-        return webClient.post().uri(uriBuilder -> uriBuilder.path("/operations/available").build())
+        return webClient.post().uri(uriBuilder -> uriBuilder.path("/operations/available/cash").build())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .body(Mono.just(operationCashRequestDto), OperationCashRequestDto.class)

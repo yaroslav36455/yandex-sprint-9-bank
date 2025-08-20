@@ -33,7 +33,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .setAmount(new BigDecimal("10.00"))
                 .setAction(Action.PUT);
         BlockerResponseDto blockerResponseDto = new BlockerResponseDto(true);
-        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto)))
@@ -59,7 +59,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .exchange()
                 .expectStatus().isOk();
 
-        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto))));
@@ -84,7 +84,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .setAmount(new BigDecimal("10.00"))
                 .setAction(Action.GET);
         BlockerResponseDto blockerResponseDto = new BlockerResponseDto(true);
-        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto)))
@@ -110,7 +110,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .exchange()
                 .expectStatus().isOk();
 
-        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto))));
@@ -135,7 +135,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .setAmount(new BigDecimal("10.00"))
                 .setAction(Action.PUT);
         BlockerResponseDto blockerResponseDto = new BlockerResponseDto(false);
-        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto)))
@@ -161,7 +161,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .exchange()
                 .expectStatus().isOk();
 
-        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto))));
@@ -184,7 +184,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .setAction(Action.GET);
         BlockerResponseDto blockerResponseDto = new BlockerResponseDto(true);
         ErrorResponseDto errorResponseDto = new ErrorResponseDto("Недостаточно денег на счету");
-        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto)))
@@ -211,7 +211,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .exchange()
                 .expectStatus().isBadRequest();
 
-        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto))));
@@ -236,7 +236,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .setAmount(new BigDecimal("10.00"))
                 .setAction(Action.PUT);
         BlockerResponseDto blockerResponseDto = new BlockerResponseDto(true);
-        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.stubFor(WireMock.post(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto)))
@@ -262,7 +262,7 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                 .exchange()
                 .expectStatus().isOk();
 
-        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available"))
+        wireMockServerBlocker.verify(1, WireMock.postRequestedFor(WireMock.urlPathEqualTo("/operations/available/cash"))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader(HttpHeaders.ACCEPT, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(operationCashRequestDto))));
