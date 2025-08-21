@@ -1,0 +1,122 @@
+networks:
+  yandex-sprint-9-network:
+    driver: bridge
+    name: yandex-sprint-9-network
+
+volumes:
+  yandex_sprint_9_exchange_postgres:
+    name: yandex_sprint_9_exchange_postgres
+  yandex_sprint_9_store_keycloak:
+    name: yandex_sprint_9_store_keycloak
+
+
+services:
+
+  yandex-sprint-9-keycloak:
+    container_name: yandex-sprint-9-keycloak
+    image: quay.io/keycloak/keycloak:26.3.1
+    environment:
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_HTTP_PORT: ${YANDEX_SPRINT_9_KEYCLOAK_PORT}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${YANDEX_SPRINT_9_KEYCLOAK_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${YANDEX_SPRINT_9_KEYCLOAK_PASSWORD}
+    ports:
+      - ${YANDEX_SPRINT_9_KEYCLOAK_PORT}:${YANDEX_SPRINT_9_KEYCLOAK_PORT}
+    command: start-dev --import-realm --hostname=yandex-sprint-9-keycloak --hostname-strict=false
+    networks:
+      - yandex-sprint-9-network
+    volumes:
+      - yandex_sprint_9_store_keycloak:/opt/keycloak/data
+      - ./keycloak/import:/opt/keycloak/data/import
+    healthcheck:
+      test: [ "CMD-SHELL", "echo > /dev/tcp/localhost/9000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  yandex-sprint-9-exchange-postgres:
+    container_name: yandex-sprint-9-exchange-postgres
+    image: postgres:${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_VERSION}
+    volumes:
+      - yandex_sprint_9_exchange_postgres:/var/lib/postgresql/data
+    environment:
+      PGPORT: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_PORT}
+      POSTGRES_USER: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME}
+      POSTGRES_PASSWORD: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD}
+      POSTGRES_DB: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME}
+    networks:
+      - yandex-sprint-9-network
+
+
+  yandex-sprint-9-accounts:
+    container_name: yandex-sprint-9-accounts
+    image: yandex-sprint-9-accounts:1.0.0
+    build:
+      context: ./accounts
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-blocker:
+    container_name: yandex-sprint-9-blocker
+    image: yandex-sprint-9-blocker:1.0.0
+    build:
+      context: ./blocker
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-cash:
+    container_name: yandex-sprint-9-cash
+    image: yandex-sprint-9-cash:1.0.0
+    build:
+      context: ./cash
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-exchange:
+    container_name: yandex-sprint-9-exchange
+    image: yandex-sprint-9-exchange:1.0.0
+    build:
+      context: ./exchange
+    networks:
+      - yandex-sprint-9-network
+    environment:
+      YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_PORT}
+      YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME}
+      YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME}
+      YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD}
+    depends_on:
+      yandex-sprint-9-exchange-postgres:
+        condition: service_started
+
+  yandex-sprint-9-exchange-generator:
+    container_name: yandex-sprint-9-exchange-generator
+    image: yandex-sprint-9-exchange-generator:1.0.0
+    build:
+      context: ./exchange-generator
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-front-ui:
+    container_name: yandex-sprint-9-front-ui
+    image: yandex-sprint-9-front-ui:1.0.0
+    build:
+      context: ./front-ui
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-notifications:
+    container_name: yandex-sprint-9-notifications
+    image: yandex-sprint-9-notifications:1.0.0
+    build:
+      context: ./notifications
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-transfer:
+    container_name: yandex-sprint-9-transfer
+    image: yandex-sprint-9-transfer:1.0.0
+    build:
+      context: ./transfer
+    networks:
+      - yandex-sprint-9-network

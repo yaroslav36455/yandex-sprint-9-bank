@@ -14,7 +14,7 @@ subprojects {
     apply plugin : "io.spring.dependency-management"
 
     group = 'by.tyv'
-    version = '0.0.1'
+    version = '1.0.0'
 
     java {
         toolchain {
