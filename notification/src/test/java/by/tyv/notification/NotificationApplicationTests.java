@@ -1,10 +1,10 @@
-package by.tyv.notifications;
+package by.tyv.notification;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class NotificationsApplicationTests {
+class NotificationApplicationTests {
 
     @Test
     void contextLoads() {

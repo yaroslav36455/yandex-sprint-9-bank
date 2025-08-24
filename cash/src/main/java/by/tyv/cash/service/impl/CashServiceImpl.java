@@ -28,11 +28,11 @@ public class CashServiceImpl implements CashService {
                 .switchIfEmpty(Mono.just(false))
                 .flatMap(isAvailable -> isAvailable
                         ? accountService.doOperation(login, operationCashRequestDto)
-                            .then(notificationService.sendNotification(login, "Операция выполнена успешно"))
-                        : notificationService.sendNotification(login, "Операция запрещена"))
+                            .then(notificationService.saveNotification(login, "Операция выполнена успешно"))
+                        : notificationService.saveNotification(login, "Операция запрещена"))
                 .doOnError(ex -> log.error("Ошибка операции списания/зачисления", ex))
                 .onErrorResume(ex -> notificationService
-                        .sendNotification(login, "Ошибка операции: " + ex.getMessage())
+                        .saveNotification(login, "Ошибка операции: " + ex.getMessage())
                         .then(Mono.error(ex)))
                 .then();
     }

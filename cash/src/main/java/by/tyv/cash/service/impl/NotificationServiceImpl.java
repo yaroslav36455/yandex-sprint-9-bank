@@ -1,13 +1,16 @@
 package by.tyv.cash.service.impl;
 
+import by.tyv.cash.enums.MessageStatus;
 import by.tyv.cash.exception.NotificationException;
-import by.tyv.cash.model.dto.ErrorResponseDto;
+import by.tyv.cash.model.entity.DeferredNotificationEntity;
+import by.tyv.cash.repository.DeferredNotificationRepository;
 import by.tyv.cash.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -17,14 +20,46 @@ import java.util.Objects;
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
     private final WebClient webClient;
+    private final DeferredNotificationRepository repository;
+    private final TransactionalOperator transactionalOperator;
 
     public NotificationServiceImpl(@Value("${clients.notification-service.url}") String notificationServiceUrl,
-                                   WebClient.Builder webClientBuilder) {
+                                   WebClient.Builder webClientBuilder,
+                                   DeferredNotificationRepository repository,
+                                   TransactionalOperator transactionalOperator) {
         this.webClient = webClientBuilder.baseUrl(notificationServiceUrl).build();
+        this.repository = repository;
+        this.transactionalOperator = transactionalOperator;
     }
 
     @Override
-    public Mono<Void> sendNotification(String login, String message) {
+    public Mono<Void> saveNotification(String login, String message) {
+        DeferredNotificationEntity newNotification = new DeferredNotificationEntity();
+        newNotification.setLogin(login);
+        newNotification.setMessage(message);
+        newNotification.setStatus(MessageStatus.CREATED.toString());
+
+        return Mono.defer(() -> repository.save(newNotification)
+                .then())
+                .as(transactionalOperator::transactional);
+    }
+
+    @Override
+    public Mono<Void> sendCreatedNotifications() {
+        return Mono.defer(() -> repository.findAllByStatus(MessageStatus.CREATED.toString())
+                        .flatMap(entity -> this.sendNotification(entity.getLogin(), entity.getMessage())
+                                .then(Mono.fromCallable(() -> {
+                                    entity.setStatus(MessageStatus.SENT.toString());
+                                    return entity;
+                                }))
+                                .flatMap(repository::save)
+                                .as(transactionalOperator::transactional)
+                                .onErrorResume(throwable -> Mono.empty())
+                                .then())
+                        .then());
+    }
+
+    private Mono<Void> sendNotification(String login, String message) {
         return this.webClient.post()
                 .uri(uriBuilder -> uriBuilder.pathSegment("notifications", login, "message").build())
                 .contentType(MediaType.TEXT_PLAIN)

@@ -4,10 +4,12 @@ networks:
     name: yandex-sprint-9-network
 
 volumes:
-  yandex_sprint_9_exchange_postgres:
-    name: yandex_sprint_9_exchange_postgres
   yandex_sprint_9_store_keycloak:
     name: yandex_sprint_9_store_keycloak
+  yandex_sprint_9_exchange_postgres:
+    name: yandex_sprint_9_exchange_postgres
+  yandex-sprint-9-cash-postgres:
+    name: yandex-sprint-9-cash-postgres
 
 
 services:
@@ -45,6 +47,19 @@ services:
       POSTGRES_USER: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME}
       POSTGRES_PASSWORD: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD}
       POSTGRES_DB: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME}
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-cash-postgres:
+    container_name: yandex-sprint-9-cash-postgres
+    image: postgres:${YANDEX_SPRINT_9_CASH_POSTGRES_DB_VERSION}
+    volumes:
+      - yandex_sprint_9_cash_postgres:/var/lib/postgresql/data
+    environment:
+      PGPORT: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT}
+      POSTGRES_USER: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME}
+      POSTGRES_PASSWORD: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD}
+      POSTGRES_DB: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME}
     networks:
       - yandex-sprint-9-network
 

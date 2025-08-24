@@ -1,6 +1,28 @@
 spring:
   application:
     name: cash
+  r2dbc:
+    url: r2dbc:postgresql://yandex-sprint-9-cash-postgres:${YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT}/${YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME}
+    username: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME}
+    password: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD}
+    pool:
+      enabled: true                               # Включение пула соединений
+      initial-size: 10                            # Начальное количество соединений в пуле
+      max-size: 50                                # Максимальное количество соединений
+      max-idle-time: 30s                          # Время бездействия соединения перед закрытием
+      max-life-time: 10m                          # Максимальное время жизни соединения
+      validation-query: SELECT 1                  # SQL-запрос для проверки работоспособности соединения
+  liquibase:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://yandex-sprint-9-cash-postgres:${YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT}/${YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME}
+    user: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME}
+    password: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD}
+    contexts: default
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
 
 clients:
   blocker-service:
@@ -9,3 +31,8 @@ clients:
     url: "http://yandex-sprint-9-account:8080"
   notification-service:
     url: "http://yandex-sprint-9-notification:8080"
+
+
+application:
+  scheduling:
+    notification-delay: 3000

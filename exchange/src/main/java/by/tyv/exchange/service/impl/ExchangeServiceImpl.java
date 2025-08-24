@@ -28,8 +28,9 @@ public class ExchangeServiceImpl implements ExchangeService {
 
     @Override
     public Mono<Void> update(List<ExchangeRateRequestDto> exchangeRates) {
-        return transactionalOperator.transactional(exchangeRateRepository.deleteAll()
+        return Mono.defer(() -> exchangeRateRepository.deleteAll()
                 .thenMany(exchangeRateRepository.saveAll(mapper.toEntity(exchangeRates)))
-                .then());
+                .then())
+                .as(transactionalOperator::transactional);
     }
 }

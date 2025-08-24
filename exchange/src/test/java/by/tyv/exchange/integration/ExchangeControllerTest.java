@@ -67,10 +67,9 @@ public class ExchangeControllerTest extends SpringBootIntegrationTest {
 
         StepVerifier.create(exchangeRateRepository.findAll().collectList())
                 .assertNext(exchangeRateEntities -> Assertions.assertThat(exchangeRateEntities)
-                        .usingRecursiveComparison()
-                        .ignoringFields("id")
-                        .isEqualTo(expectedEntities))
-                .expectNextCount(requestDto.size());
+                        .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+                        .containsExactlyInAnyOrderElementsOf(expectedEntities))
+                .verifyComplete();
     }
 
     @Test
@@ -100,9 +99,8 @@ public class ExchangeControllerTest extends SpringBootIntegrationTest {
 
         StepVerifier.create(exchangeRateRepository.findAll().collectList())
                 .assertNext(exchangeRateEntities -> Assertions.assertThat(exchangeRateEntities)
-                        .usingRecursiveComparison()
-                        .ignoringFields("id")
-                        .isEqualTo(expectedEntities))
-                .expectNextCount(requestDto.size());
+                        .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+                        .containsExactlyInAnyOrderElementsOf(expectedEntities))
+                .verifyComplete();
     }
 }

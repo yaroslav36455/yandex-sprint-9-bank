@@ -6,4 +6,4 @@ pluginManagement {
     }
 }
 rootProject.name = "yandex-sprint-9-bank"
-include ':front-ui', ':accounts', ':blocker', ':cash', ':exchange', ':exchange-generator', ':transfer', ':notifications'
+include ':front-ui', ':accounts', ':blocker', ':cash', ':exchange', ':exchange-generator', ':transfer', ':notification'
