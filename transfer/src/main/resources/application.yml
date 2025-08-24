@@ -1,6 +1,6 @@
 spring:
   application:
-    name: notification
+    name: transfer
   config:
     import: "optional:consul:"
   cloud:

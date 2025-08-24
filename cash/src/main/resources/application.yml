@@ -1,6 +1,8 @@
 spring:
   application:
     name: cash
+  config:
+    import: "optional:consul:"
   r2dbc:
     url: r2dbc:postgresql://yandex-sprint-9-cash-postgres:${YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT}/${YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME}
     username: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME}
@@ -22,6 +24,19 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  cloud:
+    consul:
+      discovery:
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+      config:
+        enabled: true
+        prefixes: [ config ]
+        format: YAML
+        defaultContext: application
+      scheme: http
+      host: yandex-sprint-9-consul
+      port: 8500
 
 
 clients:

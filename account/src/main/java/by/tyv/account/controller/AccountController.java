@@ -1,4 +1,4 @@
-package by.tyv.accounts.controller;
+package by.tyv.account.controller;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

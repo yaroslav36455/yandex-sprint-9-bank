@@ -1,10 +1,10 @@
-package by.tyv.accounts;
+package by.tyv.account;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AccountsApplicationTests {
+class AccountApplicationTests {
 
     @Test
     void contextLoads() {

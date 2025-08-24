@@ -1,6 +1,4 @@
 spring:
-  application:
-    notification-delay: 300000
   scheduling:
     enabled: false
   r2dbc:
@@ -18,6 +16,11 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+  cloud:
+    consul:
+      enabled: false
+      config:
+        enabled: false
 
 testcontainers:
   postgres:

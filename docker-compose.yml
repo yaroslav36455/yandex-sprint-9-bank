@@ -8,11 +8,19 @@ volumes:
     name: yandex_sprint_9_store_keycloak
   yandex_sprint_9_exchange_postgres:
     name: yandex_sprint_9_exchange_postgres
-  yandex-sprint-9-cash-postgres:
-    name: yandex-sprint-9-cash-postgres
+  yandex_sprint_9_cash_postgres:
+    name: yandex_sprint_9_cash_postgres
 
 
 services:
+
+  yandex-sprint-9-consul:
+    container_name: yandex-sprint-9-consul
+    image: hashicorp/consul:1.21.4
+    command: [ "agent","-dev","-ui","-client","0.0.0.0" ]
+    ports: [ "8500:8500" ]
+    networks:
+      - yandex-sprint-9-network
 
   yandex-sprint-9-keycloak:
     container_name: yandex-sprint-9-keycloak
@@ -64,13 +72,18 @@ services:
       - yandex-sprint-9-network
 
 
-  yandex-sprint-9-accounts:
-    container_name: yandex-sprint-9-accounts
-    image: yandex-sprint-9-accounts:1.0.0
+  yandex-sprint-9-account:
+    container_name: yandex-sprint-9-account
+    image: yandex-sprint-9-account:1.0.0
     build:
-      context: ./accounts
+      context: ./account
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
 
   yandex-sprint-9-blocker:
     container_name: yandex-sprint-9-blocker
@@ -79,6 +92,11 @@ services:
       context: ./blocker
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
 
   yandex-sprint-9-cash:
     container_name: yandex-sprint-9-cash
@@ -87,6 +105,11 @@ services:
       context: ./cash
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
 
   yandex-sprint-9-exchange:
     container_name: yandex-sprint-9-exchange
@@ -101,6 +124,10 @@ services:
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME}
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD}
     depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
       yandex-sprint-9-exchange-postgres:
         condition: service_started
 
@@ -111,6 +138,11 @@ services:
       context: ./exchange-generator
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
 
   yandex-sprint-9-front-ui:
     container_name: yandex-sprint-9-front-ui
@@ -119,6 +151,11 @@ services:
       context: ./front-ui
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
 
   yandex-sprint-9-notifications:
     container_name: yandex-sprint-9-notifications
@@ -127,6 +164,11 @@ services:
       context: ./notifications
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
 
   yandex-sprint-9-transfer:
     container_name: yandex-sprint-9-transfer
@@ -135,3 +177,8 @@ services:
       context: ./transfer
     networks:
       - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started

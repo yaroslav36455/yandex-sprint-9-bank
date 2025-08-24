@@ -1,3 +1,18 @@
 spring:
   application:
     name: front-ui
+  config:
+    import: "optional:consul:"
+  cloud:
+    consul:
+      discovery:
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+      config:
+        enabled: true
+        prefixes: [ config ]
+        format: YAML
+        defaultContext: application
+      scheme: http
+      host: yandex-sprint-9-consul
+      port: 8500
