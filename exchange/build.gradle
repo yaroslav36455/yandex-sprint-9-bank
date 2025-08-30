@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("io.spring.dependency-management")
+    id("org.springframework.cloud.contract")
 }
 
 dependencies {
@@ -18,4 +19,14 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:r2dbc'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    contractTestImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+    testImplementation 'io.rest-assured:spring-web-test-client'
 }
+
+contracts {
+    contractsDslDir = file("src/contractTest/resources/contracts")
+    testMode = 'WEBTESTCLIENT'
+    baseClassForTests = "by.tyv.exchange.BaseContractTest"
+}
+
+test.dependsOn(contractTest)
