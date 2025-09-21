@@ -42,13 +42,26 @@ subprojects {
         implementation "org.mapstruct:mapstruct:${mapstructVersion}"
         annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
         testImplementation 'io.projectreactor:reactor-test'
-        testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
         implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
         implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
     }
 
+    configurations.configureEach {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
     test {
         useJUnitPlatform()
     }
+}
+
+tasks.register("test") {
+    dependsOn(
+            ":exchange:publishToMavenLocal",
+            ":blocker:publishToMavenLocal",
+            ":account:publishToMavenLocal",
+            ":notification:publishToMavenLocal"
+//            ":transfer:publishToMavenLocal"
+    )
 }

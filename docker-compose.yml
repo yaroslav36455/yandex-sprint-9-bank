@@ -17,7 +17,7 @@ services:
   yandex-sprint-9-consul:
     container_name: yandex-sprint-9-consul
     image: hashicorp/consul:1.21.4
-    command: [ "agent","-dev","-ui","-client","0.0.0.0" ]
+    command: [ "agent","-dev","-ui","-client","0.0.0.0", "-log-level","ERROR" ]
     ports: [ "8500:8500" ]
     networks:
       - yandex-sprint-9-network
@@ -103,6 +103,11 @@ services:
     image: yandex-sprint-9-cash:1.0.0
     build:
       context: ./cash
+    environment:
+      YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT}
+      YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME}
+      YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME}
+      YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD}
     networks:
       - yandex-sprint-9-network
     depends_on:
@@ -157,11 +162,11 @@ services:
       yandex-sprint-9-consul:
         condition: service_started
 
-  yandex-sprint-9-notifications:
-    container_name: yandex-sprint-9-notifications
-    image: yandex-sprint-9-notifications:1.0.0
+  yandex-sprint-9-notification:
+    container_name: yandex-sprint-9-notification
+    image: yandex-sprint-9-notification:1.0.0
     build:
-      context: ./notifications
+      context: ./notification
     networks:
       - yandex-sprint-9-network
     depends_on:

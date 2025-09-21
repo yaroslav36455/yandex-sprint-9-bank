@@ -1,10 +1,34 @@
 plugins {
-    id("java")
-    id("io.spring.dependency-management")
+    id "java"
+    id "org.springframework.boot"
+    id "io.spring.dependency-management"
+//    id "org.springframework.cloud.contract"
+//    id "maven-publish"
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+//    contractTestImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+//    testImplementation 'io.rest-assured:spring-web-test-client'
+//    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 }
+
+
+//contracts {
+//    contractsDslDir = file("src/contractTest/resources/contracts")
+//    testMode = 'WEBTESTCLIENT'
+//    baseClassForTests = "by.tyv.transfer.BaseContractTest"
+//}
+
+//tasks.named("test") {
+//    dependsOn(":blocker:verifierStubsJar")
+//    dependsOn(":account:verifierStubsJar")
+//    dependsOn(":exchange:verifierStubsJar")
+//    dependsOn(":notification:verifierStubsJar")
+//}
+
+//tasks.named("check") { dependsOn("contractTest") }
+//tasks.named("verifierStubsJar") { dependsOn("contractTest") }
+//tasks.named("publishToMavenLocal") { dependsOn("verifierStubsJar") }

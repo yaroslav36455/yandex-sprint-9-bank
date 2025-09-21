@@ -1,7 +1,9 @@
 plugins {
-    id("java")
-    id("io.spring.dependency-management")
-    id("org.springframework.cloud.contract")
+    id "java"
+    id "org.springframework.boot"
+    id "io.spring.dependency-management"
+    id "org.springframework.cloud.contract"
+    id "maven-publish"
 }
 
 dependencies {
@@ -10,7 +12,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'org.liquibase:liquibase-core'
     implementation 'org.mapstruct:mapstruct:1.6.3'
     runtimeOnly 'org.postgresql:postgresql'
@@ -29,4 +30,17 @@ contracts {
     baseClassForTests = "by.tyv.exchange.BaseContractTest"
 }
 
-test.dependsOn(contractTest)
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+            // прикрепляем stubs-jar, у задачи уже есть classifier 'stubs'
+            artifact tasks.named("verifierStubsJar")
+        }
+    }
+}
+
+tasks.named("check") { dependsOn("contractTest") }
+tasks.named("verifierStubsJar") { dependsOn("contractTest") }
+tasks.named("publishToMavenLocal") { dependsOn("verifierStubsJar") }
+

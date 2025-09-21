@@ -1,4 +1,4 @@
-package by.tyv.exchangegenerator.integration;
+package by.tyv.exchangegenerator.scheduler;
 
 import by.tyv.exchangegenerator.SpringBootIntegrationTest;
 import by.tyv.exchangegenerator.enums.CurrencyCode;
