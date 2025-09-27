@@ -11,15 +11,10 @@ Contract.make {
             contentType(applicationJson())
         }
         body(
-                currency: $(producer('BYN')),
-                action:   $(producer('PUT')),
-                amount:   $(producer(123.45))
+                currency: $(consumer(regex('(RUB|BYN|IRR|CNY|INR)')), producer('BYN')),
+                action:   $(consumer(regex('(PUT|GET)')),             producer('PUT')),
+                amount:   $(consumer(regex('^(?:0|[1-9]\\d*)(?:\\.\\d+)?$')), producer(123.45))
         )
-        bodyMatchers {
-            jsonPath('$[*].currency', byRegex('(RUB|BYN|IRR|CNY|INR)'))
-            jsonPath('$[*].action', byRegex('(PUT|GET)'))
-            jsonPath('$[*].amount', byRegex('\\d+(\\.\\d+)?'))
-        }
     }
     response {
         status 200

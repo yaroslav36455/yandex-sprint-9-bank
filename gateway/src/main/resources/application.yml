@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: gateway
+  config:
+    import: "optional:consul:"
+  cloud:
+    consul:
+      discovery:
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+      config:
+        enabled: true
+        prefixes: [config]
+        format: YAML
+        defaultContext: application
+      scheme: http
+      host: yandex-sprint-9-consul
+      port: 8500
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: yandex-sprint-9-front-ui-id
+              uri: http://yandex-sprint-9-front-ui:9091
+              predicates:
+                - Path=/, /main
+
+server:
+  port: 9090

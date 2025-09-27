@@ -4,14 +4,17 @@ import by.tyv.cash.enums.Action;
 import by.tyv.cash.enums.CurrencyCode;
 import by.tyv.cash.model.dto.BlockerResponseDto;
 import by.tyv.cash.model.dto.OperationCashRequestDto;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.cloud.contract.stubrunner.junit.StubRunnerExtension;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.test.StepVerifier;
@@ -74,6 +77,42 @@ class CashConsumerStubTest{
                                 .bodyToMono(BlockerResponseDto.class)
                 )
                 .expectNext(new BlockerResponseDto(true))
+                .verifyComplete();
+    }
+
+    @ParameterizedTest
+    @MethodSource("currencyProvider")
+    @DisplayName("POST /account/{login}/operation/cash, ответ 200")
+    void callClientAccountSuccessTest(CurrencyCode currencyCode, Action action, BigDecimal amount) {
+        OperationCashRequestDto operationCashRequestDto = new OperationCashRequestDto()
+                .setCurrency(currencyCode)
+                .setAction(action)
+                .setAmount(amount);
+
+        StepVerifier.create(
+                        webClientAccount.post().uri("/account/username/operation/cash")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(operationCashRequestDto)
+                                .exchangeToMono(clientResponse -> {
+                                    Assertions.assertThat(clientResponse.statusCode()).isEqualTo(HttpStatus.OK);
+                                    return clientResponse.releaseBody();
+                                })
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("POST /notifications/{login}/message, ответ 200")
+    void callClientNotificationSuccessTest() {
+        StepVerifier.create(
+                        webClientNotification.post().uri("/notifications/username/message")
+                                .contentType(MediaType.TEXT_PLAIN)
+                                .bodyValue("Операция выполнена успешно")
+                                .exchangeToMono(clientResponse -> {
+                                    Assertions.assertThat(clientResponse.statusCode()).isEqualTo(HttpStatus.OK);
+                                    return clientResponse.releaseBody();
+                                })
+                )
                 .verifyComplete();
     }
 

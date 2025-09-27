@@ -187,3 +187,17 @@ services:
         condition: service_healthy
       yandex-sprint-9-consul:
         condition: service_started
+
+  yandex-sprint-9-gateway:
+    container_name: yandex-sprint-9-gateway
+    image: yandex-sprint-9-gateway:1.0.0
+    build:
+      context: ./gateway
+    ports: ["9090:9090"]
+    networks:
+      - yandex-sprint-9-network
+    depends_on:
+      yandex-sprint-9-keycloak:
+        condition: service_healthy
+      yandex-sprint-9-consul:
+        condition: service_started
