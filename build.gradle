@@ -61,7 +61,7 @@ tasks.register("test") {
             ":exchange:publishToMavenLocal",
             ":blocker:publishToMavenLocal",
             ":account:publishToMavenLocal",
-            ":notification:publishToMavenLocal"
-//            ":transfer:publishToMavenLocal"
+            ":notification:publishToMavenLocal",
+            ":transfer:publishToMavenLocal"
     )
 }

@@ -3,6 +3,7 @@ package by.tyv.account;
 import by.tyv.account.controller.AccountController;
 import by.tyv.account.mapper.AccountMapperImpl;
 import by.tyv.account.model.bo.OperationCash;
+import by.tyv.account.model.bo.OperationTransfer;
 import by.tyv.account.service.AccountService;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,10 @@ public class BaseContractTest {
         Mockito.doReturn(Mono.empty())
                 .when(accountService)
                 .cashOperation(Mockito.any(OperationCash.class));
+
+        Mockito.doReturn(Mono.empty())
+                .when(accountService)
+                .transferOperation(Mockito.any(OperationTransfer.class));
 
         RestAssuredWebTestClient.webTestClient(webTestClient);
     }

@@ -1,6 +1,34 @@
 spring:
+  scheduling:
+    enabled: false
+  r2dbc:
+    url:
+    username:
+    password:
+  liquibase:
+    driver-class-name:
+    url:
+    user:
+    password:
+    contexts:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
   cloud:
     consul:
       enabled: false
       config:
         enabled: false
+
+testcontainers:
+  postgres:
+    tag: 17.5-alpine3.22
+
+application:
+  r2dbc:
+    auditing:
+      enabled: true
+  scheduling:
+    enabled: false

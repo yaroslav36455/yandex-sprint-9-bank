@@ -1,6 +1,7 @@
 package by.tyv.blocker.service.impl;
 
 import by.tyv.blocker.model.dto.OperationCashRequestDto;
+import by.tyv.blocker.model.dto.OperationTransferRequestDto;
 import by.tyv.blocker.service.BlockerService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,15 @@ public class BlockerServiceImpl implements BlockerService {
 
     @Override
     public Mono<Boolean> isAvailable(OperationCashRequestDto operationCashRequestDto) {
-        return Mono.just(randomGenerator.nextInt(0, 100) < BLOCK_PERCENT);
+        return Mono.just(this.isAvailable());
+    }
+
+    @Override
+    public Mono<Boolean> isAvailable(OperationTransferRequestDto operationTransferRequestDto) {
+        return Mono.just(this.isAvailable());
+    }
+
+    private boolean isAvailable() {
+        return randomGenerator.nextInt(0, 100) < BLOCK_PERCENT;
     }
 }

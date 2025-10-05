@@ -54,9 +54,6 @@ class CashConsumerStubTest{
         webClientBlocker = WebClient.builder().baseUrl(blockerBase).build();
         webClientAccount = WebClient.builder().baseUrl(accountBase).build();
         webClientNotification = WebClient.builder().baseUrl(notifBase).build();
-
-        System.out.println("Running stubs = " + stubRunner.findAllRunningStubs());
-        System.out.println("Blocker base = " + stubRunner.findStubUrl("blocker"));
     }
 
     @ParameterizedTest

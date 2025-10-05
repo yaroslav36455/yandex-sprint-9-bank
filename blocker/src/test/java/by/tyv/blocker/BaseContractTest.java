@@ -2,6 +2,7 @@ package by.tyv.blocker;
 
 import by.tyv.blocker.contoroller.BlockerController;
 import by.tyv.blocker.model.dto.OperationCashRequestDto;
+import by.tyv.blocker.model.dto.OperationTransferRequestDto;
 import by.tyv.blocker.service.BlockerService;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,9 @@ public class BaseContractTest {
         Mockito.doReturn(Mono.just(true))
                 .when(blockerService)
                 .isAvailable(Mockito.any(OperationCashRequestDto.class));
+        Mockito.doReturn(Mono.just(true))
+                .when(blockerService)
+                .isAvailable(Mockito.any(OperationTransferRequestDto.class));
 
         RestAssuredWebTestClient.webTestClient(webTestClient);
     }
