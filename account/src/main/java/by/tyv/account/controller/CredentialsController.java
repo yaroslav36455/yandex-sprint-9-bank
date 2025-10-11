@@ -7,7 +7,14 @@ import org.springframework.web.reactive.result.view.RedirectView;
 import reactor.core.publisher.Mono;
 
 @RestController
-public class UserController {
+
+public class CredentialsController {
+
+    @PostMapping("/account/{login}/editPassword")
+    public Mono<RedirectView> postEditPasswordAccount(@PathVariable("login") String login) {
+        return Mono.just(new RedirectView("/main"));
+    }
+
     /*
     в) POST "/user/{login}/editPassword" - эндпоинт смены пароля (записывает список ошибок, если есть, в passwordErrors)
         Параметры:

@@ -57,7 +57,10 @@ public class TransferControllerTest extends SpringBootIntegrationTest {
                         .withBody(objectMapper.writeValueAsString(exchangeRates))));
 
         AccountTransferRequestDto accountTransferRequestDto = new AccountTransferRequestDto()
-                .setAmount(new BigDecimal("200.00"))
+                .setTargetAmount(new BigDecimal("200.00"))
+                .setSourceAmount(new BigDecimal("100.00"))
+                .setSourceCurrency(CurrencyCode.RUB)
+                .setTargetCurrency(CurrencyCode.IRR)
                 .setTargetLogin(targetLogin);
         wireMockServerAccount.stubFor(WireMock.post(WireMock.urlPathEqualTo(fromPath("/account/{login}/operation/transfer").buildAndExpand(sourceLogin).toUriString()))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
@@ -143,7 +146,10 @@ public class TransferControllerTest extends SpringBootIntegrationTest {
                         .withBody(objectMapper.writeValueAsString(exchangeRates))));
 
         AccountTransferRequestDto accountTransferRequestDto = new AccountTransferRequestDto()
-                .setAmount(new BigDecimal("200.00"))
+                .setTargetAmount(new BigDecimal("200.00"))
+                .setSourceAmount(new BigDecimal("100.00"))
+                .setSourceCurrency(CurrencyCode.RUB)
+                .setTargetCurrency(CurrencyCode.IRR)
                 .setTargetLogin(targetLogin);
         wireMockServerAccount.stubFor(WireMock.post(WireMock.urlPathEqualTo(fromPath("/account/{login}/operation/transfer").buildAndExpand(sourceLogin).toUriString()))
                 .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
@@ -229,7 +235,10 @@ public class TransferControllerTest extends SpringBootIntegrationTest {
                         .withBody(objectMapper.writeValueAsString(exchangeRates))));
 
         AccountTransferRequestDto accountTransferRequestDto = new AccountTransferRequestDto()
-                .setAmount(new BigDecimal("200.00"))
+                .setTargetAmount(new BigDecimal("200.00"))
+                .setSourceAmount(new BigDecimal("100.00"))
+                .setSourceCurrency(CurrencyCode.RUB)
+                .setTargetCurrency(CurrencyCode.IRR)
                 .setTargetLogin(targetLogin);
         ErrorResponseDto errorResponseDto = new ErrorResponseDto("Недостаточно денег на счету");
         wireMockServerAccount.stubFor(WireMock.post(WireMock.urlPathEqualTo(fromPath("/account/{login}/operation/transfer").buildAndExpand(sourceLogin).toUriString()))

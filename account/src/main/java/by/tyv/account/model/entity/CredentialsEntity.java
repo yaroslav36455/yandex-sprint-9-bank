@@ -1,20 +1,22 @@
 package by.tyv.account.model.entity;
 
-import by.tyv.account.enums.CurrencyCode;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Accessors(chain=true)
-@Table("account")
-public class AccountEntity {
+@Table("credentials")
+public class CredentialsEntity {
     @Id
     private Long id;
 
@@ -22,9 +24,6 @@ public class AccountEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column("credentials_id")
-    private Long credentialsId;
-
-    private BigDecimal balance;
-    private CurrencyCode currency;
+    private String login;
+    private String password;
 }

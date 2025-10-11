@@ -88,7 +88,10 @@ class TransferConsumerStubTest {
     void callClientAccountSuccessTest() {
         AccountTransferRequestDto accountTransferRequest = new AccountTransferRequestDto();
         accountTransferRequest.setTargetLogin("targetLogin");
-        accountTransferRequest.setAmount(new BigDecimal("10000.00"));
+        accountTransferRequest.setTargetAmount(new BigDecimal("10000.00"));
+        accountTransferRequest.setSourceAmount(new BigDecimal("5000.00"));
+        accountTransferRequest.setSourceCurrency(CurrencyCode.BYN);
+        accountTransferRequest.setTargetCurrency(CurrencyCode.IRR);
 
         StepVerifier.create(
                         webClientAccount.post().uri("/account/sourceLogin/operation/transfer")

@@ -21,6 +21,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     contractTestImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
     testImplementation 'io.rest-assured:spring-web-test-client'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 }
 
 contracts {
@@ -37,6 +38,10 @@ publishing {
             artifact tasks.named("verifierStubsJar")
         }
     }
+}
+
+tasks.named("test") {
+    dependsOn(":notification:publishToMavenLocal")
 }
 
 tasks.named("check") { dependsOn("contractTest") }

@@ -1,0 +1,8 @@
+INSERT INTO account (created_at, credentials_id, balance, currency)
+VALUES
+    (CURRENT_TIMESTAMP, 1, 2000.00, 'BYN'),
+    (CURRENT_TIMESTAMP, 2, 2000.00, 'IRR'),
+    (CURRENT_TIMESTAMP, 1, 2000.00, 'CNY'),
+    (CURRENT_TIMESTAMP, 1, 2000.00, 'RUS'),
+    (CURRENT_TIMESTAMP, 3, 2000.00, 'RUS'),
+    (CURRENT_TIMESTAMP, 2, 2000.00, 'INR');

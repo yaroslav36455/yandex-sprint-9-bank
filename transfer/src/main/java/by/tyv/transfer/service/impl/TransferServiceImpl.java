@@ -24,7 +24,7 @@ public class TransferServiceImpl implements TransferService {
                 .switchIfEmpty(Mono.just(false))
                 .flatMap(isAvailable -> isAvailable
                         ? exchangeService.convertMoney(transfer)
-                        .flatMap(money -> accountService.doOperation(transferMapper.mapToAccountTransferBO(transfer).setAmount(money))
+                        .flatMap(money -> accountService.doOperation(transferMapper.mapToAccountTransferBO(transfer).setTargetAmount(money))
                                 .then(notificationService.saveNotification(transfer.getSourceLogin(), "Операция выполнена успешно")))
                         : notificationService.saveNotification(transfer.getSourceLogin(), "Операция запрещена"))
                 .doOnError(ex -> log.error("Ошибка операции перевода денег", ex))

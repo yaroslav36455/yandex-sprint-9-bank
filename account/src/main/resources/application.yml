@@ -16,3 +16,11 @@ spring:
       scheme: http
       host: yandex-sprint-9-consul
       port: 8500
+
+clients:
+  notification-service:
+    url: "http://yandex-sprint-9-notification:8080"
+
+application:
+  scheduling:
+    notification-delay: 3000

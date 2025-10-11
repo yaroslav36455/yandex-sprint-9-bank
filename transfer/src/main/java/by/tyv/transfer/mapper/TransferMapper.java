@@ -16,7 +16,7 @@ public interface TransferMapper {
     Transfer mapToTransferBO(TransferRequestDto operationTransfer);
     BlockerCheckRequestDto mapToBlockerRequestDto(Transfer transfer);
 
-    @Mapping(ignore = true, target = "amount")
+    @Mapping(ignore = true, target = "targetAmount")
     AccountTransfer mapToAccountTransferBO(Transfer transfer);
 
     AccountTransferRequestDto mapToAccountRequestDto(AccountTransfer accountTransfer);

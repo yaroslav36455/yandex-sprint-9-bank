@@ -1,30 +1,34 @@
 package by.tyv.account.model.entity;
 
-import by.tyv.account.enums.CurrencyCode;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Accessors(chain=true)
-@Table("account")
-public class AccountEntity {
+@Table("deferred_notification")
+public class DeferredNotificationEntity {
     @Id
     private Long id;
-
     @Column("created_at")
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column("credentials_id")
-    private Long credentialsId;
+    @Column("login")
+    private String login;
 
-    private BigDecimal balance;
-    private CurrencyCode currency;
+    @Column("message")
+    private String message;
+
+    @Column("status")
+    private String status;
 }
