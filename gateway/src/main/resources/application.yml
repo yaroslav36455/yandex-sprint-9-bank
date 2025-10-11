@@ -24,6 +24,10 @@ spring:
               uri: http://yandex-sprint-9-front-ui:8080
               predicates:
                 - Path=/, /main
+            - id: yandex-sprint-9-exchange-api-rates
+              uri: http://yandex-sprint-9-exchange:8080
+              predicates:
+                - Path=/api/rates
 
 server:
   port: 9090

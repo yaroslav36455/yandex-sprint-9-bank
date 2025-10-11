@@ -15,8 +15,8 @@ import java.util.Random;
 @Service
 public class ExchangeRateGeneratorServiceImpl implements ExchangeRateGeneratorService {
     static private final double generateBound = 100.00;
-    static private final double updateBoundMin = -0.02;
-    static private final double updateBoundMax = 0.02;
+    static private final double updateBoundMin = -0.03;
+    static private final double updateBoundMax = 0.03;
     static private final Random random = new Random();
     private List<ExchangeRate> cachedExchangeRates;
 
@@ -44,7 +44,7 @@ public class ExchangeRateGeneratorServiceImpl implements ExchangeRateGeneratorSe
                 .peek(exchangeRate -> {
                     if (exchangeRate.getCode() != CurrencyCode.RUB) {
                         double rateChange = random.nextDouble(updateBoundMin, updateBoundMax);
-                        exchangeRate.setRate(exchangeRate.getRate().multiply(BigDecimal.valueOf(rateChange)).max(BigDecimal.ONE));
+                        exchangeRate.setRate(exchangeRate.getRate().add(BigDecimal.valueOf(rateChange)).max(BigDecimal.ONE));
                     }
                 }).toList();
     }

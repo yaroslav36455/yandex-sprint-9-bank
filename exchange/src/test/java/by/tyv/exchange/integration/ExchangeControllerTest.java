@@ -25,11 +25,11 @@ public class ExchangeControllerTest extends SpringBootIntegrationTest {
     @Sql(scripts = {"/sql/clean.sql", "/sql/insert_exchange_rates.sql"})
     public void getApiRates() {
         List<ExchangeRateResponseDto> expectedList = List.of(
-                new ExchangeRateResponseDto("Российский Рубль", new BigDecimal("1.22"), CurrencyCode.RUB),
-                new ExchangeRateResponseDto("Белорусский Рубль", new BigDecimal("55.50"), CurrencyCode.BYN),
-                new ExchangeRateResponseDto("Иранский Риал", new BigDecimal("99.10"), CurrencyCode.IRR),
-                new ExchangeRateResponseDto("Китайский Юань", new BigDecimal("77.40"), CurrencyCode.CNY),
-                new ExchangeRateResponseDto("Индийская Рупия", new BigDecimal("11.78"), CurrencyCode.INR)
+                new ExchangeRateResponseDto("Российский Рубль", CurrencyCode.RUB, new BigDecimal("1.22")),
+                new ExchangeRateResponseDto("Белорусский Рубль", CurrencyCode.BYN, new BigDecimal("55.50")),
+                new ExchangeRateResponseDto("Иранский Риал", CurrencyCode.IRR, new BigDecimal("99.10")),
+                new ExchangeRateResponseDto("Китайский Юань", CurrencyCode.CNY, new BigDecimal("77.40")),
+                new ExchangeRateResponseDto("Индийская Рупия", CurrencyCode.INR, new BigDecimal("11.78"))
         );
 
         webClient.get()

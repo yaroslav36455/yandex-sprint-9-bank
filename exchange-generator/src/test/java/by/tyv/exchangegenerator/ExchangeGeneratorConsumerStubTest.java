@@ -22,7 +22,7 @@ import java.util.List;
 
 
 @SpringJUnitConfig(ExchangeGeneratorConsumerStubTest.Cfg.class)
-@AutoConfigureStubRunner(ids = "by.tyv:exchange:+:stubs", stubsMode = StubRunnerProperties.StubsMode.LOCAL)
+@AutoConfigureStubRunner(ids = "by.tyv:exchange:1.0.0:stubs", stubsMode = StubRunnerProperties.StubsMode.LOCAL)
 public class ExchangeGeneratorConsumerStubTest {
 
     @Autowired

@@ -27,8 +27,8 @@ testcontainers:
     tag: 17.5-alpine3.22
 
 application:
+  scheduling:
+    enable: false
   r2dbc:
     auditing:
-      enabled: true
-  scheduling:
-    enabled: false
+      enable: true

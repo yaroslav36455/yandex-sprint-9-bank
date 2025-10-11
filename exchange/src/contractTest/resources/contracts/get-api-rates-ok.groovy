@@ -15,13 +15,13 @@ Contract.make {
         status 200
         headers { contentType(applicationJson()) }
         body([
-                [ title: 'Белорусский Рубль', rate: 123.45, value: 'BYN' ],
-                [ title: 'Российский Рубль',  rate: 98.76, value: 'RUB' ]
+                [ title: 'Белорусский Рубль', value: '123.45', name: 'BYN' ],
+                [ title: 'Российский Рубль',  value: '98.76', name: 'RUB' ]
         ])
         bodyMatchers {
             jsonPath('$[*].title', byRegex('[\\p{L}\\s-]+'))
-            jsonPath('$[*].rate',  byRegex('\\d+(\\.\\d+)?'))
-            jsonPath('$[*].value', byRegex('(RUB|BYN|IRR|CNY|INR)'))
+            jsonPath('$[*].value', byRegex('\\d+\\.\\d{2}'))
+            jsonPath('$[*].name', byRegex('(RUB|BYN|IRR|CNY|INR)'))
         }
     }
 }

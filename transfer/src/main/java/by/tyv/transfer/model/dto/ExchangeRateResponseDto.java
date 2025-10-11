@@ -4,4 +4,4 @@ import by.tyv.transfer.enums.CurrencyCode;
 
 import java.math.BigDecimal;
 
-public record ExchangeRateResponseDto(String title, BigDecimal rate, CurrencyCode value) { }
+public record ExchangeRateResponseDto(String title, BigDecimal value, CurrencyCode name) { }

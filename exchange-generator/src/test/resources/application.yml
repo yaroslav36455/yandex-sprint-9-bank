@@ -4,3 +4,7 @@ spring:
       enabled: false
       config:
         enabled: false
+
+application:
+  scheduling:
+    enable: false

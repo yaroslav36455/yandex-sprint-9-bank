@@ -29,6 +29,6 @@ testcontainers:
 application:
   r2dbc:
     auditing:
-      enabled: true
+      enable: true
   scheduling:
-    enabled: false
+    enable: false

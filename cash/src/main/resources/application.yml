@@ -50,4 +50,8 @@ clients:
 
 application:
   scheduling:
+    enable: true
     notification-delay: 3000
+  r2dbc:
+    auditing:
+      enable: true

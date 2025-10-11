@@ -4,7 +4,7 @@ import by.tyv.account.config.TestcontainersConfiguration;
 import by.tyv.account.repository.AccountRepository;
 import by.tyv.account.repository.DeferredNotificationRepository;
 import by.tyv.account.scheduler.NotificationScheduler;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import by.tyv.account.service.NotificationService;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.AfterEach;
@@ -20,8 +20,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @AutoConfigureWebTestClient
 @Import(TestcontainersConfiguration.class)
 public abstract class SpringBootIntegrationTest {
-    @Autowired
-    protected ObjectMapper objectMapper;
     @Autowired
     protected WebTestClient webClient;
     @Autowired

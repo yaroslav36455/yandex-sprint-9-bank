@@ -167,6 +167,12 @@ services:
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME}
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME}
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL","wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+      start_period: 30s
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -187,6 +193,8 @@ services:
         condition: service_healthy
       yandex-sprint-9-consul:
         condition: service_started
+      yandex-sprint-9-exchange:
+        condition: service_healthy
 
   yandex-sprint-9-front-ui:
     container_name: yandex-sprint-9-front-ui
@@ -247,3 +255,7 @@ services:
         condition: service_healthy
       yandex-sprint-9-consul:
         condition: service_started
+      yandex-sprint-9-front-ui:
+        condition: service_started
+      yandex-sprint-9-exchange:
+        condition: service_healthy

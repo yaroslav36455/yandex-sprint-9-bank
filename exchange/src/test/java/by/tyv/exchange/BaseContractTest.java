@@ -31,8 +31,8 @@ public abstract class BaseContractTest {
         RestAssuredWebTestClient.webTestClient(webTestClient);
 
         Mockito.doReturn(Flux.just(
-                new ExchangeRateResponseDto("Белорусский Рубль", new BigDecimal("123.45"), CurrencyCode.BYN),
-                new ExchangeRateResponseDto("Российский Рубль",  new BigDecimal("98.76"),  CurrencyCode.RUB)
+                new ExchangeRateResponseDto("Белорусский Рубль", CurrencyCode.BYN, new BigDecimal("123.45")),
+                new ExchangeRateResponseDto("Российский Рубль",  CurrencyCode.RUB, new BigDecimal("98.76"))
         )).when(exchangeService).getRates();
 
         Mockito.doReturn(Mono.empty())

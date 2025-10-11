@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class ExchangeServiceImpl implements ExchangeService {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(Mono.just(exchangeMapper.mapToDto(exchangeRates)), ExchangeRateDto.class)
                 .exchangeToMono(ClientResponse::releaseBody)
-                .onErrorContinue((throwable, obj) -> log.error("Ошибка при обновлении обмена валют {}", obj, throwable));
+                .onErrorContinue((throwable, obj) -> log.error("Ошибка при обновлении обмена валют {}", obj, throwable))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

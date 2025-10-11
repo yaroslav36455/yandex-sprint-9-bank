@@ -9,6 +9,7 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ExchangeMapper {
 
-    @Mapping(target = "currency", source = "value")
+    @Mapping(target = "currency", source = "name")
+    @Mapping(target = "rate", source = "value")
     Exchange toExchangeBO(ExchangeRateResponseDto exchangeRateResponseDto);
 }

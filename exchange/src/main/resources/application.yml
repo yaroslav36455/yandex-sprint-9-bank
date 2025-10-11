@@ -27,7 +27,7 @@ spring:
   cloud:
     consul:
       discovery:
-        health-check-path: /actuator/health
+        health-check-path: /actuator/health/readiness
         health-check-interval: 10s
       config:
         enabled: true
@@ -36,3 +36,14 @@ spring:
       scheme: http
       host: yandex-sprint-9-consul
       port: 8500
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true   # даёт /actuator/health/readiness и /liveness
+      show-details: when_authorized

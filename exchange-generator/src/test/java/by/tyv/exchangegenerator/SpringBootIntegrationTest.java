@@ -4,13 +4,13 @@ import by.tyv.exchangegenerator.service.ExchangeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "scheduler.enable=false")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SpringBootIntegrationTest {
 
     protected static WireMockServer wireMockServer = new WireMockServer(
@@ -19,11 +19,15 @@ public class SpringBootIntegrationTest {
 
     static {
         wireMockServer.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            wireMockServer.stop();
+        }));
     }
 
-    @AfterAll
-    public static void tearDown() {
-        wireMockServer.stop();
+    @AfterEach
+    public void cleanUp() {
+        wireMockServer.resetAll();
     }
 
     @Autowired
@@ -33,6 +37,6 @@ public class SpringBootIntegrationTest {
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry registry) {
-        registry.add("clients.exchange-service.url", () -> "http://localhost:" + wireMockServer.port());
+        registry.add("clients.exchange-service.url", () -> wireMockServer.baseUrl());
     }
 }
