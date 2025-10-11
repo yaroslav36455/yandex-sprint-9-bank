@@ -21,7 +21,7 @@ spring:
         webflux:
           routes:
             - id: yandex-sprint-9-front-ui-id
-              uri: http://yandex-sprint-9-front-ui:9091
+              uri: http://yandex-sprint-9-front-ui:8080
               predicates:
                 - Path=/, /main
 

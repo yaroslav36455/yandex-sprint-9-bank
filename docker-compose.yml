@@ -10,6 +10,10 @@ volumes:
     name: yandex_sprint_9_exchange_postgres
   yandex_sprint_9_cash_postgres:
     name: yandex_sprint_9_cash_postgres
+  yandex_sprint_9_transfer_postgres:
+    name: yandex_sprint_9_transfer_postgres
+  yandex_sprint_9_account_postgres:
+    name: yandex_sprint_9_account_postgres
 
 
 services:
@@ -71,18 +75,51 @@ services:
     networks:
       - yandex-sprint-9-network
 
+  yandex-sprint-9-transfer-postgres:
+    container_name: yandex-sprint-9-transfer-postgres
+    image: postgres:${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_VERSION}
+    volumes:
+      - yandex_sprint_9_transfer_postgres:/var/lib/postgresql/data
+    environment:
+      PGPORT: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_PORT}
+      POSTGRES_USER: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_NAME}
+      POSTGRES_PASSWORD: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_PASSWORD}
+      POSTGRES_DB: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_NAME}
+    networks:
+      - yandex-sprint-9-network
+
+  yandex-sprint-9-account-postgres:
+    container_name: yandex-sprint-9-account-postgres
+    image: postgres:${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_VERSION}
+    volumes:
+      - yandex_sprint_9_account_postgres:/var/lib/postgresql/data
+    environment:
+      PGPORT: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_PORT}
+      POSTGRES_USER: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_NAME}
+      POSTGRES_PASSWORD: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_PASSWORD}
+      POSTGRES_DB: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_NAME}
+    networks:
+      - yandex-sprint-9-network
+
 
   yandex-sprint-9-account:
     container_name: yandex-sprint-9-account
     image: yandex-sprint-9-account:1.0.0
     build:
       context: ./account
+    environment:
+      YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_PORT}
+      YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_NAME}
+      YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_NAME}
+      YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_PASSWORD}
     networks:
       - yandex-sprint-9-network
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
       yandex-sprint-9-consul:
+        condition: service_started
+      yandex-sprint-9-account-postgres:
         condition: service_started
 
   yandex-sprint-9-blocker:
@@ -114,6 +151,8 @@ services:
       yandex-sprint-9-keycloak:
         condition: service_healthy
       yandex-sprint-9-consul:
+        condition: service_started
+      yandex-sprint-9-cash-postgres:
         condition: service_started
 
   yandex-sprint-9-exchange:
@@ -180,12 +219,19 @@ services:
     image: yandex-sprint-9-transfer:1.0.0
     build:
       context: ./transfer
+    environment:
+      YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_PORT}
+      YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_NAME}
+      YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_NAME}
+      YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_PASSWORD}
     networks:
       - yandex-sprint-9-network
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
       yandex-sprint-9-consul:
+        condition: service_started
+      yandex-sprint-9-transfer-postgres:
         condition: service_started
 
   yandex-sprint-9-gateway:
