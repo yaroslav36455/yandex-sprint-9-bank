@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 public class NotificationControllerTest {
@@ -23,7 +25,11 @@ public class NotificationControllerTest {
     @Test
     @DisplayName("POST /notification/{login}/message ")
     public void handleMessage() {
-        webTestClient.post().uri("/notifications/username/message")
+        webTestClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                 .post().uri("/notifications/username/message")
                 .contentType(MediaType.TEXT_PLAIN)
                 .bodyValue("Операция запрещена")
                 .exchange()

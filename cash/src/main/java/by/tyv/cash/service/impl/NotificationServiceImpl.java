@@ -5,6 +5,7 @@ import by.tyv.cash.exception.NotificationException;
 import by.tyv.cash.model.entity.DeferredNotificationEntity;
 import by.tyv.cash.repository.DeferredNotificationRepository;
 import by.tyv.cash.service.NotificationService;
+import by.tyv.cash.service.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,17 @@ public class NotificationServiceImpl implements NotificationService {
     private final WebClient webClient;
     private final DeferredNotificationRepository repository;
     private final TransactionalOperator transactionalOperator;
+    private final TokenProvider tokenProvider;
 
     public NotificationServiceImpl(@Value("${clients.notification-service.url}") String notificationServiceUrl,
                                    WebClient.Builder webClientBuilder,
                                    DeferredNotificationRepository repository,
-                                   TransactionalOperator transactionalOperator) {
+                                   TransactionalOperator transactionalOperator,
+                                   TokenProvider tokenProvider) {
         this.webClient = webClientBuilder.baseUrl(notificationServiceUrl).build();
         this.repository = repository;
         this.transactionalOperator = transactionalOperator;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
@@ -60,8 +64,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private Mono<Void> sendNotification(String login, String message) {
-        return this.webClient.post()
+        return tokenProvider.getNewTechnical().flatMap(token -> this.webClient.post()
                 .uri(uriBuilder -> uriBuilder.pathSegment("notifications", login, "message").build())
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(token))
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(Mono.just(message), String.class)
                 .retrieve()
@@ -69,6 +74,6 @@ public class NotificationServiceImpl implements NotificationService {
                         resp -> Mono.error(new NotificationException("Неизвестная ошибка")))
                 .toBodilessEntity()
                 .then()
-                .doOnError(throwable -> log.error("Ошибка отправки нотификации", throwable));
+                .doOnError(throwable -> log.error("Ошибка отправки нотификации", throwable)));
     }
 }

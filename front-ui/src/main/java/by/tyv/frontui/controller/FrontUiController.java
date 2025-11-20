@@ -1,15 +1,24 @@
 package by.tyv.frontui.controller;
 
+import by.tyv.frontui.mapper.UserMapper;
+import by.tyv.frontui.model.dto.SignUpFormDto;
+import by.tyv.frontui.service.FrontUiService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.RedirectView;
+import org.springframework.web.reactive.result.view.Rendering;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Controller
+@RequiredArgsConstructor
+@Slf4j
 public class FrontUiController {
+    private final FrontUiService frontUiService;
+    private final UserMapper userMapper;
 
     // а) GET "/" - редирект на "/main"
     @GetMapping("/")
@@ -44,8 +53,8 @@ public class FrontUiController {
                 "transferOtherErrors" - список ошибок при переводе на счет другого пользователя (null, если не выполнялся перевод)
     */
     @GetMapping("/main")
-    public Mono<String> getMainPage(Model model) {
-        return Mono.just("main");
+    public Mono<Rendering> getMainPage() {
+        return frontUiService.buildMainPage();
     }
 
     /*
@@ -76,6 +85,30 @@ public class FrontUiController {
         return Mono.just("signup");
     }
 
+    /*
+    з) POST "/signup" - эндпоинт регистрации нового пользователя
+        Параметры:
+            login - логин пользователя
+            password - пароль пользователя
+            confirm_password - пароль пользователя второй раз
+            name - фамилия и имя пользователя
+            birthdate - дата рождения пользователя (LocalDate)
+            @RequestParam("login") String login,
+    Возвращает:
+                редирект на "/main"
+            В случае ошибок возвращает:
+                шаблон "signup.html"
+                используется модель для заполнения шаблона:
+                    "login" - строка с логином пользователя
+                    "name" - строка с фамилией и именем пользователя
+                    "birthdate" - LocalDate с датой рождения пользователя
+                    "accounts" - список всех зарегистрированных пользователей
+                    "errors" - список ошибок при регистрации
+    */
+    @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public Mono<Rendering> postSignup(@ModelAttribute("form") SignUpFormDto form) {
+        return frontUiService.signUp(userMapper.toBO(form));
+    }
 
     /*
     е) POST "/user/{login}/transfer" - эндпоинт перевода денег между своими счетами и перевода денег на счёт другого пользователя (один эндпоинт для того и другого, записывает список ошибок, если есть, в transferErrors или в transferOtherErrors)
@@ -90,6 +123,48 @@ public class FrontUiController {
     */
     @PostMapping("/user/{login}/transfer")
     public Mono<RedirectView> postTransferMoney(@PathVariable("login") String login) {
+        return Mono.just(new RedirectView("/main"));
+    }
+
+    /*
+    в) POST "/user/{login}/editPassword" - эндпоинт смены пароля (записывает список ошибок, если есть, в passwordErrors)
+        Параметры:
+            login - логин пользователя
+            password - новый пароль
+            confirm_password - новый пароль второй раз
+        Возвращает:
+            редирект на "/main"
+    */
+    @PostMapping("/user/{login}/editPassword")
+    public Mono<Rendering> postEditPassword(@PathVariable("login") String login,
+                                            ServerWebExchange exchange
+//                                            @RequestParam("password") String password,
+                                            /*@RequestParam("confirmPassword") String confirmPassword*/) {
+//        String password = "tmp_password";
+//        String confirmPassword =  "tmp_confirm_password";
+//        log.info("Запрос на front-ui смена пароля, {}, {}, {}", login, password, confirmPassword);
+//        return frontUiService.updatePassword(login, password, confirmPassword);
+        return exchange.getFormData()
+                .flatMap(form -> {
+                    String password = form.getFirst("password");
+                    String confirmPassword = form.getFirst("confirmPassword");
+                    log.info("Запрос на front-ui смена пароля, {}, {}, {}", login, password, confirmPassword);
+                    return frontUiService.updatePassword(login, password, confirmPassword);
+                });
+    }
+
+    /*
+    г) POST "/user/{login}/editUserAccounts" - эндпоинт редактирования аккаунта (записывает список ошибок, если есть, в userAccountsErrors)
+        Параметры:
+            login - логин пользователя
+            name - фамилия и имя пользователя
+            birthdate - дата рождения пользователя (LocalDate)
+            account - список строк с валютами пользователя, для которых у него есть счета
+        Возвращает:
+            редирект на "/main"
+    */
+    @PostMapping("/user/{login}/editUserAccounts")
+    public Mono<RedirectView> postEditAccount(@PathVariable("login") String login) {
         return Mono.just(new RedirectView("/main"));
     }
 }

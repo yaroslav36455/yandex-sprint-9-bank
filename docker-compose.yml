@@ -33,11 +33,16 @@ services:
       KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
       KC_HTTP_PORT: ${YANDEX_SPRINT_9_KEYCLOAK_PORT}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HOSTNAME_URL: ${YANDEX_SPRINT_9_KEYCLOAK_HOSTNAME}:${YANDEX_SPRINT_9_KEYCLOAK_PORT}
+      KC_HOSTNAME_ADMIN_URL: ${YANDEX_SPRINT_9_KEYCLOAK_HOSTNAME}:${YANDEX_SPRINT_9_KEYCLOAK_PORT}
       KC_BOOTSTRAP_ADMIN_USERNAME: ${YANDEX_SPRINT_9_KEYCLOAK_USERNAME}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${YANDEX_SPRINT_9_KEYCLOAK_PASSWORD}
     ports:
       - ${YANDEX_SPRINT_9_KEYCLOAK_PORT}:${YANDEX_SPRINT_9_KEYCLOAK_PORT}
-    command: start-dev --import-realm --hostname=yandex-sprint-9-keycloak --hostname-strict=false
+    command: start-dev --import-realm --hostname-strict=false
     networks:
       - yandex-sprint-9-network
     volumes:
@@ -100,6 +105,7 @@ services:
       POSTGRES_DB: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_NAME}
     networks:
       - yandex-sprint-9-network
+    ports: ["5433:5432"]
 
 
   yandex-sprint-9-account:
@@ -107,13 +113,18 @@ services:
     image: yandex-sprint-9-account:1.0.0
     build:
       context: ./account
+    networks:
+      - yandex-sprint-9-network
     environment:
       YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_PORT}
       YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_NAME}
       YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_NAME}
       YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_ACCOUNT_POSTGRES_DB_USER_PASSWORD}
-    networks:
-      - yandex-sprint-9-network
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+      YANDEX_SPRINT_9_KEYCLOAK_USER_MANAGEMENT_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_USER_MANAGEMENT_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_USER_MANAGEMENT_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_USER_MANAGEMENT_CLIENT_SECRET}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -129,6 +140,8 @@ services:
       context: ./blocker
     networks:
       - yandex-sprint-9-network
+    environment:
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -140,13 +153,16 @@ services:
     image: yandex-sprint-9-cash:1.0.0
     build:
       context: ./cash
+    networks:
+      - yandex-sprint-9-network
     environment:
       YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_PORT}
       YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_NAME}
       YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_NAME}
       YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_CASH_POSTGRES_DB_USER_PASSWORD}
-    networks:
-      - yandex-sprint-9-network
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -167,6 +183,7 @@ services:
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_NAME}
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_NAME}
       YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_EXCHANGE_POSTGRES_DB_USER_PASSWORD}
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     healthcheck:
       test: ["CMD-SHELL","wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
       interval: 5s
@@ -188,6 +205,10 @@ services:
       context: ./exchange-generator
     networks:
       - yandex-sprint-9-network
+    environment:
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -203,6 +224,10 @@ services:
       context: ./front-ui
     networks:
       - yandex-sprint-9-network
+    environment:
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -216,6 +241,8 @@ services:
       context: ./notification
     networks:
       - yandex-sprint-9-network
+    environment:
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -227,13 +254,16 @@ services:
     image: yandex-sprint-9-transfer:1.0.0
     build:
       context: ./transfer
+    networks:
+      - yandex-sprint-9-network
     environment:
       YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_PORT: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_PORT}
       YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_NAME: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_NAME}
       YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_NAME: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_NAME}
       YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_PASSWORD: ${YANDEX_SPRINT_9_TRANSFER_POSTGRES_DB_USER_PASSWORD}
-    networks:
-      - yandex-sprint-9-network
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy
@@ -250,6 +280,11 @@ services:
     ports: ["9090:9090"]
     networks:
       - yandex-sprint-9-network
+    environment:
+      YANDEX_SPRINT_9_KEYCLOAK_REALM: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+      YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+      YANDEX_SPRINT_9_KEYCLOAK_USER_CLIENT_ID: ${YANDEX_SPRINT_9_KEYCLOAK_USER_CLIENT_ID}
     depends_on:
       yandex-sprint-9-keycloak:
         condition: service_healthy

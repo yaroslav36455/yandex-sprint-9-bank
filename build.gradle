@@ -41,6 +41,8 @@ subprojects {
         testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
         implementation "org.mapstruct:mapstruct:${mapstructVersion}"
         annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        testImplementation 'org.springframework.security:spring-security-test'
         testImplementation 'io.projectreactor:reactor-test'
         implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
         implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'

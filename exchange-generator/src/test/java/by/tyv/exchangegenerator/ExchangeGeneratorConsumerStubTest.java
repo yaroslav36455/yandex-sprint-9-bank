@@ -4,6 +4,7 @@ import by.tyv.exchangegenerator.enums.CurrencyCode;
 import by.tyv.exchangegenerator.mapper.ExchangeMapperImpl;
 import by.tyv.exchangegenerator.model.bo.ExchangeRate;
 import by.tyv.exchangegenerator.service.ExchangeService;
+import by.tyv.exchangegenerator.service.TokenProvider;
 import by.tyv.exchangegenerator.service.impl.ExchangeServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
@@ -33,7 +35,12 @@ public class ExchangeGeneratorConsumerStubTest {
         @Bean
         ExchangeService exchangeService(StubFinder stubs) {
             String url = stubs.findStubUrl("by.tyv", "exchange").toString();
-            return new ExchangeServiceImpl(url, new ExchangeMapperImpl(), WebClient.builder());
+            return new ExchangeServiceImpl(url, new ExchangeMapperImpl(), WebClient.builder(), getTokenProvider());
+        }
+
+        @Bean
+        TokenProvider getTokenProvider() {
+            return () -> Mono.just("dummy-token");
         }
     }
 

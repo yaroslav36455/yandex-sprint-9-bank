@@ -1,8 +1,8 @@
-INSERT INTO account (created_at, credentials_id, balance, currency)
+INSERT INTO account (created_at, user_id, balance, currency)
 VALUES
-    (CURRENT_TIMESTAMP, 1, 2000.00, 'BYN'),
-    (CURRENT_TIMESTAMP, 2, 2000.00, 'IRR'),
-    (CURRENT_TIMESTAMP, 1, 2000.00, 'CNY'),
-    (CURRENT_TIMESTAMP, 1, 2000.00, 'RUS'),
-    (CURRENT_TIMESTAMP, 3, 2000.00, 'RUS'),
-    (CURRENT_TIMESTAMP, 2, 2000.00, 'INR');
+    ('2019-01-12T12:55:44.123456', 1, 2000.00, 'BYN'),
+    ('2022-11-30T09:16:32.123456', 2, 2000.00, 'IRR'),
+    ('2025-04-09T18:45:28.123456', 1, 2000.00, 'CNY'),
+    ('2018-05-04T22:09:59.123456', 1, 2000.00, 'RUS'),
+    ('2015-06-25T02:14:18.123456', 3, 2000.00, 'RUS'),
+    ('2020-10-16T07:01:44.123456', 2, 2000.00, 'INR');

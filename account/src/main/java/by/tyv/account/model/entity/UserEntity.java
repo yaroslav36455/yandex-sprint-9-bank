@@ -9,14 +9,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @ToString
 @Accessors(chain=true)
-@Table("credentials")
-public class CredentialsEntity {
+@Table("users")
+public class UserEntity {
     @Id
     private Long id;
 
@@ -24,6 +25,10 @@ public class CredentialsEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    private String sub;
     private String login;
-    private String password;
+
+    private String name;
+    @Column("birth_date")
+    private LocalDate birthDate;
 }

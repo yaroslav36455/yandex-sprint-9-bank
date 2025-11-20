@@ -37,10 +37,34 @@ spring:
       scheme: http
       host: yandex-sprint-9-consul
       port: 8500
+  security:
+    oauth2:
+      client:
+        registration:
+          bank-services-cc:
+            provider: keycloak
+            client-id: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+            client-secret: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+          user-manager-cc:
+            provider: keycloak
+            client-id: ${YANDEX_SPRINT_9_KEYCLOAK_USER_MANAGEMENT_CLIENT_ID}
+            client-secret: ${YANDEX_SPRINT_9_KEYCLOAK_USER_MANAGEMENT_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            token-uri: http://yandex-sprint-9-keycloak:8080/realms/${YANDEX_SPRINT_9_KEYCLOAK_REALM}/protocol/openid-connect/token
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://yandex-sprint-9-keycloak:8080/realms/${YANDEX_SPRINT_9_KEYCLOAK_REALM}/protocol/openid-connect/certs
+
 
 clients:
   notification-service:
     url: "http://yandex-sprint-9-notification:8080"
+  keycloak:
+    url: "http://yandex-sprint-9-keycloak:8080"
+    realm: ${YANDEX_SPRINT_9_KEYCLOAK_REALM}
 
 application:
   scheduling:

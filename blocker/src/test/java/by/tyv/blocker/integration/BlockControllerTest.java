@@ -15,6 +15,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 public class BlockControllerTest {
@@ -29,7 +31,11 @@ public class BlockControllerTest {
                 .setAction(CashAction.GET)
                 .setCurrency(CurrencyCode.BYN)
                 .setAmount(new BigDecimal("100.00"));
-        webTestClient.post().uri("/operations/available/cash")
+        webTestClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post().uri("/operations/available/cash")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(operationCashRequestDto)

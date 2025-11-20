@@ -5,6 +5,7 @@ import by.tyv.exchangegenerator.enums.CurrencyCode;
 import by.tyv.exchangegenerator.model.bo.ExchangeRate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.List;
 public class ExchangeServiceTest extends SpringBootIntegrationTest {
 
     @Test
+    @DisplayName("Обновление курсов валют")
     public void testExchangeService() throws JsonProcessingException {
         List<ExchangeRate> expectedList = List.of(
                 new ExchangeRate(CurrencyCode.RUB, BigDecimal.valueOf(1.0)),

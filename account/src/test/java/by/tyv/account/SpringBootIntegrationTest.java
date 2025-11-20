@@ -4,7 +4,6 @@ import by.tyv.account.config.TestcontainersConfiguration;
 import by.tyv.account.repository.AccountRepository;
 import by.tyv.account.repository.DeferredNotificationRepository;
 import by.tyv.account.scheduler.NotificationScheduler;
-import by.tyv.account.service.NotificationService;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.AfterEach;

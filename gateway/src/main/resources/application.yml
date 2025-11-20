@@ -20,14 +20,45 @@ spring:
       server:
         webflux:
           routes:
-            - id: yandex-sprint-9-front-ui-id
+            - id: yandex-sprint-9-front-ui-get-id
               uri: http://yandex-sprint-9-front-ui:8080
               predicates:
-                - Path=/, /main
+                - Method=GET
+                - Path=/, /main, /signup, /logout
+            - id: yandex-sprint-9-front-ui-post-id
+              uri: http://yandex-sprint-9-front-ui:8080
+              predicates:
+                - Method=POST
+                - Path=/signup,/user/**
             - id: yandex-sprint-9-exchange-api-rates
               uri: http://yandex-sprint-9-exchange:8080
               predicates:
+                - Method=GET
                 - Path=/api/rates
+          default-filters:
+            - TokenRelay
+            - RemoveResponseHeader=Set-Cookie
+  security:
+    oauth2:
+      client:
+        registration:
+          bank-services-cc:
+            provider: keycloak
+            client-id: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_ID}
+            client-secret: ${YANDEX_SPRINT_9_KEYCLOAK_INTERNAL_CALL_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+          user-token-ac:
+            provider: keycloak
+            client-id: ${YANDEX_SPRINT_9_KEYCLOAK_USER_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            scope: openid,profile,user
+            redirect-uri: "http://localhost:9090/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: http://yandex-sprint-9-keycloak:8080/realms/${YANDEX_SPRINT_9_KEYCLOAK_REALM}
+      resourceserver:
+        jwt:
+          issuer-uri: http://yandex-sprint-9-keycloak:8080/realms/${YANDEX_SPRINT_9_KEYCLOAK_REALM}
 
 server:
   port: 9090

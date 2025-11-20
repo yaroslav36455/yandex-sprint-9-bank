@@ -23,6 +23,7 @@ import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 
 public class CashControllerTest extends SpringBootIntegrationTest {
@@ -55,7 +56,11 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
 
-        webClient.post()
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post()
                 .uri(fromPath("/cash/{login}").buildAndExpand(login).toUriString())
                 .body(Mono.just(cashRequestDto), CashRequestDto.class)
                 .exchange()
@@ -118,7 +123,11 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
 
-        webClient.post()
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post()
                 .uri(fromPath("/cash/{login}").buildAndExpand(login).toUriString())
                 .body(Mono.just(cashRequestDto), CashRequestDto.class)
                 .exchange()
@@ -180,7 +189,11 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
 
-        webClient.post()
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post()
                 .uri(fromPath("/cash/{login}").buildAndExpand(login).toUriString())
                 .body(Mono.just(cashRequestDto), CashRequestDto.class)
                 .exchange()
@@ -241,7 +254,11 @@ public class CashControllerTest extends SpringBootIntegrationTest {
                         .withBody(objectMapper.writeValueAsString(errorResponseDto))));
 
 
-        webClient.post()
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post()
                 .uri(fromPath("/cash/{login}").buildAndExpand(login).toUriString())
                 .body(Mono.just(cashRequestDto), CashRequestDto.class)
                 .exchange()

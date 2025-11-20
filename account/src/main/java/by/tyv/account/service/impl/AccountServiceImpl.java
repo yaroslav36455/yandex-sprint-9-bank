@@ -1,6 +1,8 @@
 package by.tyv.account.service.impl;
 
 import by.tyv.account.enums.CashAction;
+import by.tyv.account.mapper.AccountMapper;
+import by.tyv.account.model.bo.AccountInfo;
 import by.tyv.account.model.bo.OperationCash;
 import by.tyv.account.model.bo.OperationTransfer;
 import by.tyv.account.model.entity.AccountEntity;
@@ -22,6 +24,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final TransactionalOperator transactionalOperator;
     private final NotificationService notificationService;
+    private final AccountMapper accountMapper;
 
     @Override
     public Mono<Void> cashOperation(OperationCash operationCash) {
@@ -76,5 +79,11 @@ public class AccountServiceImpl implements AccountService {
                 .formatted(operationTransfer.getSourceLogin(), operationTransfer.getTargetAmount(), operationTransfer.getTargetCurrency()));
 
         return tx.then(Mono.when(n1, n2));
+    }
+
+    @Override
+    public Flux<AccountInfo> getAccounts(String login) {
+        return accountRepository.findAllByLogin(login)
+                .map(accountMapper::toBO);
     }
 }

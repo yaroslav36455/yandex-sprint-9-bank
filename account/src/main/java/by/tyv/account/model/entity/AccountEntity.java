@@ -22,8 +22,8 @@ public class AccountEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column("credentials_id")
-    private Long credentialsId;
+    @Column("user_id")
+    private Long userId;
 
     private BigDecimal balance;
     private CurrencyCode currency;

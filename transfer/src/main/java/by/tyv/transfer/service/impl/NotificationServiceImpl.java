@@ -5,6 +5,7 @@ import by.tyv.transfer.exception.NotificationException;
 import by.tyv.transfer.model.entity.DeferredNotificationEntity;
 import by.tyv.transfer.repository.DeferredNotificationRepository;
 import by.tyv.transfer.service.NotificationService;
+import by.tyv.transfer.service.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,17 @@ public class NotificationServiceImpl implements NotificationService {
     private final WebClient webClient;
     private final DeferredNotificationRepository repository;
     private final TransactionalOperator transactionalOperator;
+    private final TokenProvider tokenProvider;
 
     public NotificationServiceImpl(@Value("${clients.notification-service.url}") String notificationServiceUrl,
                                    WebClient.Builder webClientBuilder,
                                    DeferredNotificationRepository repository,
-                                   TransactionalOperator transactionalOperator) {
+                                   TransactionalOperator transactionalOperator,
+                                   TokenProvider tokenProvider) {
         this.webClient = webClientBuilder.baseUrl(notificationServiceUrl).build();
         this.repository = repository;
         this.transactionalOperator = transactionalOperator;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
@@ -60,15 +64,17 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private Mono<Void> sendNotification(String login, String message) {
-        return this.webClient.post()
+        return tokenProvider.getNewTechnical()
+                .flatMap(token -> this.webClient.post()
                 .uri(uriBuilder -> uriBuilder.pathSegment("notifications", login, "message").build())
                 .contentType(MediaType.TEXT_PLAIN)
-                .body(Mono.just(message), String.class)
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(token))
+                .bodyValue(message)
                 .retrieve()
                 .onStatus(status -> !Objects.equals(status, HttpStatus.OK),
                         resp -> Mono.error(new NotificationException("Неизвестная ошибка")))
                 .toBodilessEntity()
                 .then()
-                .doOnError(throwable -> log.error("Ошибка отправки нотификации", throwable));
+                .doOnError(throwable -> log.error("Ошибка отправки нотификации", throwable)));
     }
 }

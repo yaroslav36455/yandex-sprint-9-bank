@@ -16,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 
 public class ExchangeControllerTest extends SpringBootIntegrationTest {
@@ -59,7 +60,11 @@ public class ExchangeControllerTest extends SpringBootIntegrationTest {
                 new ExchangeRateEntity(){{setCode(CurrencyCode.INR.toString()); setRate(new BigDecimal("5.55"));}}
         );
 
-        webClient.post()
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post()
                 .uri(fromPath("/api/update").toUriString())
                 .body(Mono.just(requestDto), ExchangeRateRequestDto.class)
                 .exchange()
@@ -91,7 +96,11 @@ public class ExchangeControllerTest extends SpringBootIntegrationTest {
                 new ExchangeRateEntity(){{setCode(CurrencyCode.INR.toString()); setRate(new BigDecimal("5.55"));}}
         );
 
-        webClient.post()
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post()
                 .uri(fromPath("/api/update").toUriString())
                 .body(Mono.just(requestDto), ExchangeRateRequestDto.class)
                 .exchange()
