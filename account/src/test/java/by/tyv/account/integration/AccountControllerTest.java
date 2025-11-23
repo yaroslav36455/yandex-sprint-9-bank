@@ -9,7 +9,6 @@ import by.tyv.account.model.dto.TransferRequestDto;
 import by.tyv.account.model.entity.DeferredNotificationEntity;
 import by.tyv.account.util.TestUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,7 +27,6 @@ import java.util.stream.Stream;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 
-@Disabled
 public class AccountControllerTest extends SpringBootIntegrationTest {
 
     @Test

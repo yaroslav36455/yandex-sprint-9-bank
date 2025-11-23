@@ -7,11 +7,13 @@ import by.tyv.account.model.dto.SignUpFormDto;
 import by.tyv.account.model.entity.UserEntity;
 import by.tyv.account.repository.UserRepository;
 import by.tyv.account.util.TestUtils;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import org.apache.http.HttpHeaders;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import reactor.test.StepVerifier;
@@ -23,7 +25,6 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 
-@Disabled
 public class UserControllerTest extends SpringBootIntegrationTest {
 
     @Autowired
@@ -71,10 +72,28 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                 .setBirthDate(LocalDate.of(1988, 8, 12));
         UserEntity expecetdUserEntity = new UserEntity()
                 .setId(1L)
+                .setSub("user-sub")
                 .setName("Maria")
-//                .setLogin("someLogin_1")
-//                .setPassword("somePassword_1")
+                .setLogin("someLogin_1")
                 .setBirthDate(LocalDate.of(1988, 8, 12));
+
+        wireMockServerKeycloak.stubFor(WireMock.post(WireMock.urlEqualTo("/realms/test-realm/protocol/openid-connect/token"))
+                .willReturn(WireMock.aResponse()
+                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody("""
+                                  {
+                                    "access_token": "test-admin-token",
+                                    "expires_in": 300,
+                                    "token_type": "Bearer"
+                                  }
+                                  """)));
+
+        wireMockServerKeycloak.stubFor(WireMock.post(WireMock.urlEqualTo("/admin/realms/test-realm/users"))
+                .withHeader("Authorization", WireMock.equalTo("Bearer test-admin-token"))
+                .willReturn(WireMock.created().withHeader(HttpHeaders.LOCATION, "http://some-host/" + expecetdUserEntity.getSub())));
+        wireMockServerKeycloak.stubFor(WireMock.put(WireMock.urlMatching("/admin/realms/test-realm/users/.+/reset-password"))
+                .withHeader("Authorization", WireMock.equalTo("Bearer test-admin-token"))
+                .willReturn(WireMock.noContent()));
 
         webClient.post().uri(fromPath("/signup").toUriString())
                 .bodyValue(signUpFormDto)
@@ -94,15 +113,18 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                             .satisfies(userEntity -> {
                                         Assertions.assertThat(userEntity.getId()).isNotNull();
                                         Assertions.assertThat(userEntity.getCreatedAt()).isNotNull();
-//                                        Assertions.assertThat(userEntity.getPassword()).isNotNull();
                                     }
                             );
                 })
                 .verifyComplete();
+
+        wireMockServerKeycloak.verify(WireMock.postRequestedFor(WireMock.urlPathEqualTo("/realms/test-realm/protocol/openid-connect/token")));
+        wireMockServerKeycloak.verify(WireMock.postRequestedFor(WireMock.urlPathEqualTo("/admin/realms/test-realm/users"))
+                .withHeader(HttpHeaders.AUTHORIZATION, WireMock.equalTo("Bearer test-admin-token")));
     }
 
     @Test
-    @Sql({"/sql/clean.sql", "/sql/insert_user_for_duplication.sql"})
+    @Sql("/sql/clean.sql")
     @DisplayName("POST /signup, попытка создания нового пользователя, пользователь с таким логином уже существует")
     public void createNewUserButUserAlreadyExists() {
         SignUpForm signUpForm = new SignUpForm()
@@ -112,6 +134,21 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                 .setConfirmPassword("somePassword_2")
                 .setBirthDate(LocalDate.of(1989, 9, 13));
 
+        wireMockServerKeycloak.stubFor(WireMock.post(WireMock.urlEqualTo("/realms/test-realm/protocol/openid-connect/token"))
+                .willReturn(WireMock.aResponse()
+                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody("""
+                                  {
+                                    "access_token": "test-admin-token",
+                                    "expires_in": 300,
+                                    "token_type": "Bearer"
+                                  }
+                                  """)));
+
+        wireMockServerKeycloak.stubFor(WireMock.post(WireMock.urlEqualTo("/admin/realms/test-realm/users"))
+                .withHeader("Authorization", WireMock.equalTo("Bearer test-admin-token"))
+                .willReturn(WireMock.status(HttpStatus.CONFLICT.value())));
+
         webClient.post().uri(fromPath("/signup").toUriString())
                 .bodyValue(signUpForm)
                 .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -120,7 +157,7 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                 .expectBody(ErrorResponseDto.class)
                 .consumeWith(result -> {
                     Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    Assertions.assertThat(result.getResponseBody().getErrorMessage()).isEqualTo("Пользователь с login=someLogin_1 уже существует");
+                    Assertions.assertThat(result.getResponseBody().getErrorMessage()).isEqualTo("Логин 'someLogin_1' уже используется");
                 });
     }
 
