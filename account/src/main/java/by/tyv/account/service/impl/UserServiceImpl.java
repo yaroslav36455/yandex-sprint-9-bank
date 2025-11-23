@@ -1,6 +1,7 @@
 package by.tyv.account.service.impl;
 
 import by.tyv.account.exception.AccountException;
+import by.tyv.account.exception.UserNotFoundException;
 import by.tyv.account.mapper.UserMapper;
 import by.tyv.account.model.bo.SignUpForm;
 import by.tyv.account.model.bo.UserInfo;
@@ -21,6 +22,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -76,12 +78,12 @@ public class UserServiceImpl implements UserService {
     public Mono<Void> updatePassword(String login, String password, String confirmPassword) {
         if (!Objects.equals(password, confirmPassword)) {
             return Mono.error(new IllegalArgumentException("Не совпадают пароли указанные пользователем %s".formatted(login)))
-                    .doOnError(error -> log.warn("Не совпадают пароли указанные пользователем %s".formatted(login), error))
+                    .doOnError(error -> log.warn("Не совпадают пароли указанные пользователем {}", login, error))
                     .then();
         }
-        return tokenProvider.getNewUserManagmentToken()
-                .flatMap(userManagementToken -> findSubByLogin(login, userManagementToken)
-                .flatMap(sub -> setPassword(userManagementToken, sub, password)))
+
+        return Mono.zip(tokenProvider.getNewUserManagmentToken(), this.findUserByLogin(login))
+                .flatMap(tuple -> setPassword(tuple.getT1(), tuple.getT2().getSub(), password))
                 .doOnSuccess(v -> log.info("Успешно изменён пароль для пользователя login={}", login));
     }
 
@@ -159,14 +161,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private Mono<String> findSubByLogin(String login, String userManagementToken) {
-        return keycloakWebClient.get()
-                .uri("/admin/realms/{keycloakRealm}/users?username={login}&exact=true", keycloakRealm, login)
-                .headers(h -> h.setBearerAuth(userManagementToken))
-                .retrieve()
-                .bodyToFlux(Map.class)
-                .single()
-                .map(m -> m.get("id"))
-                .cast(String.class);
+    private Mono<UserEntity> findUserByLogin(String login) {
+        return userRepository.findByLogin(login)
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User '%s' not found".formatted(login))))
+                .doOnError(throwable -> log.warn("User '{}' not found", login));
     }
 }

@@ -3,6 +3,7 @@ package by.tyv.account.integration;
 import by.tyv.account.SpringBootIntegrationTest;
 import by.tyv.account.model.bo.SignUpForm;
 import by.tyv.account.model.dto.ErrorResponseDto;
+import by.tyv.account.model.dto.PasswordUpdateDto;
 import by.tyv.account.model.dto.SignUpFormDto;
 import by.tyv.account.model.entity.UserEntity;
 import by.tyv.account.repository.UserRepository;
@@ -121,6 +122,8 @@ public class UserControllerTest extends SpringBootIntegrationTest {
         wireMockServerKeycloak.verify(WireMock.postRequestedFor(WireMock.urlPathEqualTo("/realms/test-realm/protocol/openid-connect/token")));
         wireMockServerKeycloak.verify(WireMock.postRequestedFor(WireMock.urlPathEqualTo("/admin/realms/test-realm/users"))
                 .withHeader(HttpHeaders.AUTHORIZATION, WireMock.equalTo("Bearer test-admin-token")));
+        wireMockServerKeycloak.verify(WireMock.putRequestedFor(WireMock.urlPathEqualTo("/admin/realms/test-realm/users/%s/reset-password".formatted(expecetdUserEntity.getSub())))
+                .withHeader(HttpHeaders.AUTHORIZATION, WireMock.equalTo("Bearer test-admin-token")));
     }
 
     @Test
@@ -182,5 +185,79 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                     Assertions.assertThat(result.getResponseBody()).isNotNull();
                     Assertions.assertThat(result.getResponseBody().getErrorMessage()).isEqualTo("Проверочный пароль не совпадает");
                 });
+    }
+
+
+    @Test
+    @Sql({"/sql/clean.sql", "/sql/insert_users.sql"})
+    @DisplayName("POST /user/{login}/editPassword, изменение пароля пользователю, 200 OK")
+    public void updateUserPasswordSuccessful() {
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto("newPassword", "newPassword");
+
+        wireMockServerKeycloak.stubFor(WireMock.post(WireMock.urlEqualTo("/realms/test-realm/protocol/openid-connect/token"))
+                .willReturn(WireMock.aResponse()
+                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody("""
+                                  {
+                                    "access_token": "test-admin-token",
+                                    "expires_in": 300,
+                                    "token_type": "Bearer"
+                                  }
+                                  """)));
+
+        wireMockServerKeycloak.stubFor(WireMock.put(WireMock.urlEqualTo("/admin/realms/test-realm/users/cfca6cc3-174d-45d9-84b0-8b296b3f43f0/reset-password"))
+                .withHeader("Authorization", WireMock.equalTo("Bearer test-admin-token"))
+                .willReturn(WireMock.noContent()));
+
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "cfca6cc3-174d-45d9-84b0-8b296b3f43f0")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post().uri(fromPath("/user/{login}/editPassword").buildAndExpand("SomeLogin").toUriString())
+                .bodyValue(passwordUpdateDto)
+                .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        wireMockServerKeycloak.verify(WireMock.postRequestedFor(WireMock.urlPathEqualTo("/realms/test-realm/protocol/openid-connect/token")));
+        wireMockServerKeycloak.verify(WireMock.putRequestedFor(WireMock.urlPathEqualTo("/admin/realms/test-realm/users/cfca6cc3-174d-45d9-84b0-8b296b3f43f0/reset-password"))
+                .withHeader(HttpHeaders.AUTHORIZATION, WireMock.equalTo("Bearer test-admin-token")));
+    }
+
+    @Test
+    @Sql("/sql/clean.sql")
+    @DisplayName("POST /user/{login}/editPassword, изменение пароля пользователю неуспешно, пользователь не найден, 400 OK")
+    public void updateUserPasswordUnsuccessful() {
+        PasswordUpdateDto passwordUpdateDto = new PasswordUpdateDto("newPassword", "newPassword");
+
+        wireMockServerKeycloak.stubFor(WireMock.post(WireMock.urlEqualTo("/realms/test-realm/protocol/openid-connect/token"))
+                .willReturn(WireMock.aResponse()
+                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .withBody("""
+                                  {
+                                    "access_token": "test-admin-token",
+                                    "expires_in": 300,
+                                    "token_type": "Bearer"
+                                  }
+                                  """)));
+
+        wireMockServerKeycloak.stubFor(WireMock.put(WireMock.urlEqualTo("/admin/realms/test-realm/users/cfca6cc3-174d-45d9-84b0-8b296b3f43f0/reset-password"))
+                .withHeader("Authorization", WireMock.equalTo("Bearer test-admin-token"))
+                .willReturn(WireMock.noContent()));
+
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "cfca6cc3-174d-45d9-84b0-8b296b3f43f0")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post().uri(fromPath("/user/{login}/editPassword").buildAndExpand("SomeLogin").toUriString())
+                .bodyValue(passwordUpdateDto)
+                .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus()
+                .isBadRequest()
+                .expectBody(ErrorResponseDto.class)
+                .value(errorResponseDto -> Assertions.assertThat(errorResponseDto.getErrorMessage())
+                        .isEqualTo("User 'SomeLogin' not found"));
     }
 }

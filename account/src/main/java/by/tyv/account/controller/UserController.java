@@ -28,7 +28,6 @@ public class UserController {
     @PostMapping("/user/{login}/editPassword")
     public Mono<Void> postEditPassword(@PathVariable("login") String login,
                                        @RequestBody PasswordUpdateDto passwordUpdate) {
-        log.info("Запрос на account смена пароля, {}, {}, {}", login, passwordUpdate.getPassword(), passwordUpdate.getConfirmPassword());
         return userService.updatePassword(login, passwordUpdate.getPassword(), passwordUpdate.getConfirmPassword());
     }
 

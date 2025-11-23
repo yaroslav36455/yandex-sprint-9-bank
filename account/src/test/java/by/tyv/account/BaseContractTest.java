@@ -100,6 +100,10 @@ public class BaseContractTest {
                 .when(userService)
                 .signUp(Mockito.any(SignUpForm.class));
 
+        Mockito.doReturn(Mono.empty())
+                .when(userService)
+                .updatePassword(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(String.class));
+
         RestAssuredWebTestClient.webTestClient(webTestClient.mutateWith(mockJwt().jwt(jwt -> jwt
                 .claim("sub", "some-subject")
                 .claim("client_id", "some-client-id")

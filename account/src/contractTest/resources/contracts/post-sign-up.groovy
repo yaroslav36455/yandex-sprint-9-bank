@@ -3,7 +3,7 @@ package contracts
 import org.springframework.cloud.contract.spec.Contract
 
 Contract.make {
-    description "Когда POST /signup вызван, сервис создаёт нового пользователя и возвращает статус 200 OK"
+    description "Когда POST /signup вызван, сервис создаёт нового пользователя и возвращает статус 201 CREATED"
     request {
         method 'POST'
         urlPath '/signup'
