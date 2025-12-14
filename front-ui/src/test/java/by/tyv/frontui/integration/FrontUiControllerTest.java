@@ -3,18 +3,17 @@ package by.tyv.frontui.integration;
 import by.tyv.frontui.SpringBootIntegrationTest;
 import by.tyv.frontui.enums.CurrencyCode;
 import by.tyv.frontui.model.bo.SignUpForm;
-import by.tyv.frontui.model.dto.AccountInfoDto;
-import by.tyv.frontui.model.dto.ErrorResponseDto;
-import by.tyv.frontui.model.dto.SignUpFormDto;
-import by.tyv.frontui.model.dto.UserInfoDto;
+import by.tyv.frontui.model.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -198,5 +197,38 @@ public class FrontUiControllerTest extends SpringBootIntegrationTest {
                     assertThat(html).contains("name=\"birthDate\"");
                     assertThat(html).contains("value=\"1990-01-01\"");
                 });
+    }
+
+    @Test
+    @DisplayName("POST /user/{login}/editUserAccounts - обновление аккаунтов пользователя")
+    public void updateUserAccounts() throws JsonProcessingException {
+        AccountsUpdateDto accountsUpdateDto = new AccountsUpdateDto()
+                .setName("Andrew")
+                .setBirthDate(LocalDate.of(1990, 1,1))
+                .setAccounts(List.of(CurrencyCode.RUB, CurrencyCode.BYN, CurrencyCode.CNY));
+        String uriString = UriComponentsBuilder.fromPath("/user/{login}/editUserAccounts")
+                .buildAndExpand("andrew")
+                .toUriString();
+
+        wireMockServerAccount.stubFor(WireMock.post(WireMock.urlPathEqualTo(uriString))
+                .withHeader(HttpHeaders.CONTENT_TYPE, WireMock.equalTo(MediaType.APPLICATION_JSON_VALUE))
+                .withRequestBody(WireMock.equalToJson(objectMapper.writeValueAsString(accountsUpdateDto)))
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
+
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "some-subject")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "user")))
+                .post()
+                .uri(uriString)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData("name", "Andrew")
+                        .with("birthDate", "1990-01-01")
+                        .with("account", "RUB")
+                        .with("account", "BYN")
+                        .with("account", "CNY"))
+                .exchange()
+                .expectStatus().isSeeOther()
+                .expectHeader().value(HttpHeaders.LOCATION, loc -> Assertions.assertThat(loc).endsWith("/main"));
     }
 }

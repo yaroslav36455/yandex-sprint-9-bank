@@ -1,6 +1,8 @@
 package by.tyv.account.controller;
 
+import by.tyv.account.mapper.AccountMapper;
 import by.tyv.account.mapper.UserMapper;
+import by.tyv.account.model.dto.EditAccountsDto;
 import by.tyv.account.model.dto.PasswordUpdateDto;
 import by.tyv.account.model.dto.SignUpFormDto;
 import by.tyv.account.model.dto.UserInfoDto;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Mono;
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
+    private final AccountMapper accountMapper;
 
     @GetMapping("/user")
     public Flux<UserInfoDto> getUsers() {
@@ -31,19 +34,10 @@ public class UserController {
         return userService.updatePassword(login, passwordUpdate.getPassword(), passwordUpdate.getConfirmPassword());
     }
 
-    /*
-    г) POST "/user/{login}/editUserAccounts" - эндпоинт редактирования аккаунта (записывает список ошибок, если есть, в userAccountsErrors)
-        Параметры:
-            login - логин пользователя
-            name - фамилия и имя пользователя
-            birthdate - дата рождения пользователя (LocalDate)
-            account - список строк с валютами пользователя, для которых у него есть счета
-        Возвращает:
-            редирект на "/main"
-    */
     @PostMapping("/user/{login}/editUserAccounts")
-    public Mono<Void> postEditAccount(@PathVariable("login") String login) {
-        return Mono.empty();
+    public Mono<Void> postEditAccount(@PathVariable("login") String login,
+                                      @RequestBody EditAccountsDto editAccountsDto) {
+        return userService.updateAccounts(login, accountMapper.toBO(editAccountsDto));
     }
 
     @PostMapping("/signup")

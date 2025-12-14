@@ -1,11 +1,15 @@
 package by.tyv.account.service.impl;
 
+import by.tyv.account.enums.CurrencyCode;
 import by.tyv.account.exception.AccountException;
 import by.tyv.account.exception.UserNotFoundException;
 import by.tyv.account.mapper.UserMapper;
+import by.tyv.account.model.bo.EditAccounts;
 import by.tyv.account.model.bo.SignUpForm;
 import by.tyv.account.model.bo.UserInfo;
+import by.tyv.account.model.entity.AccountEntity;
 import by.tyv.account.model.entity.UserEntity;
+import by.tyv.account.repository.AccountRepository;
 import by.tyv.account.repository.UserRepository;
 import by.tyv.account.service.TokenProvider;
 import by.tyv.account.service.UserService;
@@ -15,14 +19,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -38,18 +46,23 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final String keycloakRealm;
     private final TokenProvider tokenProvider;
+    private final TransactionalOperator transactionalOperator;
+    private final AccountRepository accountRepository;
 
     public UserServiceImpl(@Value("${clients.keycloak.url}") String keycloakClientUrl,
                            WebClient.Builder webClientBuilder,
                            UserRepository userRepository,
                            UserMapper userMapper,
                            @Value("${clients.keycloak.realm}") String keycloakRealm,
-                           TokenProvider tokenProvider) {
+                           TokenProvider tokenProvider,
+                           TransactionalOperator transactionalOperator, AccountRepository accountRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.keycloakWebClient = webClientBuilder.baseUrl(keycloakClientUrl).build();
         this.keycloakRealm = keycloakRealm;
         this.tokenProvider = tokenProvider;
+        this.transactionalOperator = transactionalOperator;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -165,5 +178,53 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByLogin(login)
                 .switchIfEmpty(Mono.error(new UserNotFoundException("User '%s' not found".formatted(login))))
                 .doOnError(throwable -> log.warn("User '{}' not found", login));
+    }
+
+    @Override
+    public Mono<Void> updateAccounts(String login, EditAccounts editAccounts) {
+        validate(editAccounts);
+        return userRepository.findByLogin(login)
+                .map(user -> user.setBirthDate(editAccounts.getBirthDate()).setName(editAccounts.getName()))
+                .flatMap(userRepository::save)
+                .flatMap(userEntity -> accountRepository.findAllByLogin(userEntity.getLogin())
+                        .collectList()
+                        .flatMap((Function<List<AccountEntity>, Mono<Void>>) oldAccountEntities -> {
+                            List<CurrencyCode> oldCurrencyList = oldAccountEntities.stream()
+                                    .map(AccountEntity::getCurrency)
+                                    .toList();
+
+                            List<AccountEntity> accountsToCreate = editAccounts.getAccounts().stream()
+                                    .filter(Predicate.not(oldCurrencyList::contains))
+                                    .map(currencyCode -> new AccountEntity()
+                                            .setUserId(userEntity.getId())
+                                            .setCurrency(currencyCode)
+                                            .setBalance(BigDecimal.ZERO))
+                                    .toList();
+                            List<AccountEntity> accountsToRemove = oldAccountEntities.stream()
+                                    .filter(Predicate.not(accountEntity -> editAccounts.getAccounts().contains(accountEntity.getCurrency())))
+                                    .toList();
+
+                            return accountRepository.deleteAll(accountsToRemove)
+                                    .thenMany(accountRepository.saveAll(accountsToCreate))
+                                    .then();
+                        }))
+                .as(transactionalOperator::transactional)
+                .then();
+    }
+
+    private void validate(EditAccounts editAccounts) {
+        String errorMessage = null;
+        if (!namePattern.matcher(editAccounts.getName()).matches()) {
+            errorMessage = "Имя не соответствует шаблону [A-Za-z\\s-]+";
+        } else if (Objects.isNull(editAccounts.getBirthDate())) {
+            errorMessage = "Не указана дата рождения";
+        } else if (LocalDate.now().minusYears(minAge).isBefore(editAccounts.getBirthDate())) {
+            errorMessage = "Дата рождения %s - меньше допустимого возраста %d лет".formatted(editAccounts.getName(), minAge);
+        }
+
+        if (Objects.nonNull(errorMessage)) {
+            log.error(errorMessage);
+            throw new AccountException(errorMessage);
+        }
     }
 }

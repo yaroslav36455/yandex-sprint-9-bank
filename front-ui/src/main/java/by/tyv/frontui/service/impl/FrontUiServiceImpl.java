@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,5 +71,11 @@ public class FrontUiServiceImpl implements FrontUiService {
                                                 .orElseThrow(() -> new ServiceException("Не найден текущий пользователь")))
                                         .build()))
                 );
+    }
+
+    @Override
+    public Mono<Rendering> updateAccounts(String login, String name, LocalDate birthdate, List<CurrencyCode> accounts) {
+        return accountService.updateAccounts(login, name, birthdate, accounts)
+                .thenReturn(Rendering.redirectTo("/main").build());
     }
 }

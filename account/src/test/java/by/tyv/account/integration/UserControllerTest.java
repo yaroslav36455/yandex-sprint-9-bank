@@ -1,10 +1,13 @@
 package by.tyv.account.integration;
 
 import by.tyv.account.SpringBootIntegrationTest;
+import by.tyv.account.enums.CurrencyCode;
 import by.tyv.account.model.bo.SignUpForm;
+import by.tyv.account.model.dto.EditAccountsDto;
 import by.tyv.account.model.dto.ErrorResponseDto;
 import by.tyv.account.model.dto.PasswordUpdateDto;
 import by.tyv.account.model.dto.SignUpFormDto;
+import by.tyv.account.model.entity.AccountEntity;
 import by.tyv.account.model.entity.UserEntity;
 import by.tyv.account.repository.UserRepository;
 import by.tyv.account.util.TestUtils;
@@ -19,7 +22,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -259,5 +264,50 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                 .expectBody(ErrorResponseDto.class)
                 .value(errorResponseDto -> Assertions.assertThat(errorResponseDto.getErrorMessage())
                         .isEqualTo("User 'SomeLogin' not found"));
+    }
+
+    @Test
+    @Sql({"/sql/clean.sql", "/sql/insert_users.sql", "/sql/insert_accounts.sql"})
+    @DisplayName("POST /user/{login}/editUserAccounts - изменение аккаунтов пользователя, статус 200 OK")
+    public void updateUserAccounts() {
+        EditAccountsDto editAccountsDto = new EditAccountsDto()
+                .setName("Some New Name")
+                .setBirthDate(LocalDate.of(2000, 1, 1))
+                .setAccounts(List.of(CurrencyCode.RUB, CurrencyCode.INR, CurrencyCode.CNY));
+
+        webClient.mutateWith(mockJwt().jwt(jwt -> jwt
+                        .claim("sub", "cfca6cc3-174d-45d9-84b0-8b296b3f43f0")
+                        .claim("client_id", "some-client-id")
+                        .claim("scope", "internal_call")))
+                .post().uri(fromPath("/user/{login}/editUserAccounts").buildAndExpand("SomeLogin").toUriString())
+                .bodyValue(editAccountsDto)
+                .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody().isEmpty();
+
+        StepVerifier.create(userRepository.findByLogin("SomeLogin"))
+                .assertNext(user -> {
+                    Assertions.assertThat(user).isNotNull();
+                    Assertions.assertThat(user.getName()).isEqualTo("Some New Name");
+                    Assertions.assertThat(user.getBirthDate()).isEqualTo(LocalDate.of(2000, 1, 1));
+                })
+                .verifyComplete();
+
+        StepVerifier.create(accountRepository.findAllByLogin("SomeLogin").collectList())
+                .assertNext(accounts -> {
+                    var expected = List.of(
+                            new AccountEntity().setBalance(new BigDecimal("0.00")).setCurrency(CurrencyCode.INR),
+                            new AccountEntity().setBalance(new BigDecimal("2000.00")).setCurrency(CurrencyCode.RUB),
+                            new AccountEntity().setBalance(new BigDecimal("0.00")).setCurrency(CurrencyCode.CNY)
+                    );
+
+                    Assertions.assertThat(accounts).isNotNull();
+                    Assertions.assertThat(accounts)
+                            .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id", "createdAt", "userId")
+                            .containsExactlyInAnyOrderElementsOf(expected);
+                })
+                .verifyComplete();
     }
 }

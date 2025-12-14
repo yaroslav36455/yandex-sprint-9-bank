@@ -17,7 +17,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "1000000")
+@AutoConfigureWebTestClient
 @Import(TestcontainersConfiguration.class)
 public abstract class SpringBootIntegrationTest {
     @Autowired

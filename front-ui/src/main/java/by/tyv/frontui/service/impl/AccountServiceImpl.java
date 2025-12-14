@@ -7,10 +7,7 @@ import by.tyv.frontui.mapper.UserMapper;
 import by.tyv.frontui.model.bo.Account;
 import by.tyv.frontui.model.bo.SignUpForm;
 import by.tyv.frontui.model.bo.User;
-import by.tyv.frontui.model.dto.AccountInfoDto;
-import by.tyv.frontui.model.dto.ErrorResponseDto;
-import by.tyv.frontui.model.dto.PasswordUpdateDto;
-import by.tyv.frontui.model.dto.UserInfoDto;
+import by.tyv.frontui.model.dto.*;
 import by.tyv.frontui.service.AccountService;
 import by.tyv.frontui.service.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -109,5 +107,22 @@ public class AccountServiceImpl implements AccountService {
                 .toBodilessEntity()
                 .then()
                 .doOnError(throwable -> log.error("Ошибка обновления пароля", throwable)));
+    }
+
+    @Override
+    public Mono<Void> updateAccounts(String login, String name, LocalDate birthdate, List<CurrencyCode> accounts) {
+        return tokenProvider.getNewTechnical().flatMap(token -> accountWebClient.post()
+                .uri(UriComponentsBuilder.fromPath("/user/{login}/editUserAccounts").buildAndExpand(login).toString())
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new AccountsUpdateDto().setName(name).setBirthDate(birthdate).setAccounts(accounts))
+                .retrieve()
+                .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(),
+                        resp -> resp.bodyToMono(ErrorResponseDto.class)
+                                .defaultIfEmpty(new ErrorResponseDto("Неизвестная ошибка"))
+                                .flatMap(err -> Mono.error(new ServiceException(err.getErrorMessage()))))
+                .toBodilessEntity()
+                .then()
+                .doOnError(throwable -> log.error("Ошибка обновления списка аккаунтов", throwable)));
     }
 }

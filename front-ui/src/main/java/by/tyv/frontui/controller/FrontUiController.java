@@ -1,5 +1,6 @@
 package by.tyv.frontui.controller;
 
+import by.tyv.frontui.mapper.AccountMapper;
 import by.tyv.frontui.mapper.UserMapper;
 import by.tyv.frontui.model.dto.SignUpFormDto;
 import by.tyv.frontui.service.FrontUiService;
@@ -13,12 +14,16 @@ import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
 public class FrontUiController {
     private final FrontUiService frontUiService;
     private final UserMapper userMapper;
+    private final AccountMapper accountMapper;
 
     // а) GET "/" - редирект на "/main"
     @GetMapping("/")
@@ -137,18 +142,11 @@ public class FrontUiController {
     */
     @PostMapping("/user/{login}/editPassword")
     public Mono<Rendering> postEditPassword(@PathVariable("login") String login,
-                                            ServerWebExchange exchange
-//                                            @RequestParam("password") String password,
-                                            /*@RequestParam("confirmPassword") String confirmPassword*/) {
-//        String password = "tmp_password";
-//        String confirmPassword =  "tmp_confirm_password";
-//        log.info("Запрос на front-ui смена пароля, {}, {}, {}", login, password, confirmPassword);
-//        return frontUiService.updatePassword(login, password, confirmPassword);
+                                            ServerWebExchange exchange) {
         return exchange.getFormData()
                 .flatMap(form -> {
                     String password = form.getFirst("password");
                     String confirmPassword = form.getFirst("confirmPassword");
-                    log.info("Запрос на front-ui смена пароля, {}, {}, {}", login, password, confirmPassword);
                     return frontUiService.updatePassword(login, password, confirmPassword);
                 });
     }
@@ -164,7 +162,14 @@ public class FrontUiController {
             редирект на "/main"
     */
     @PostMapping("/user/{login}/editUserAccounts")
-    public Mono<RedirectView> postEditAccount(@PathVariable("login") String login) {
-        return Mono.just(new RedirectView("/main"));
+    public Mono<Rendering> postEditAccount(@PathVariable("login") String login,
+                                           ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .flatMap(form -> {
+                    String name = form.getFirst("name");
+                    LocalDate birthDate = LocalDate.parse(form.getFirst("birthDate"));
+                    List<String> accounts = form.get("account");
+                    return frontUiService.updateAccounts(login, name, birthDate, accountMapper.toBoAccountList(accounts));
+                });
     }
 }
