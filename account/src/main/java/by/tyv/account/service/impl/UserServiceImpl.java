@@ -165,7 +165,7 @@ public class UserServiceImpl implements UserService {
         } else if (Objects.isNull(form.getBirthDate())) {
             errorMessage = "Не указана дата рождения";
         } else if (LocalDate.now().minusYears(minAge).isBefore(form.getBirthDate())) {
-            errorMessage = "Дата рождения %s - меньше допустимого возраста %d лет".formatted(form.getName(), minAge);
+            errorMessage = "Дата рождения %s - меньше допустимого возраста (%d лет)".formatted(form.getName(), minAge);
         }
 
         if (Objects.nonNull(errorMessage)) {
@@ -176,7 +176,7 @@ public class UserServiceImpl implements UserService {
 
     private Mono<UserEntity> findUserByLogin(String login) {
         return userRepository.findByLogin(login)
-                .switchIfEmpty(Mono.error(new UserNotFoundException("User '%s' not found".formatted(login))))
+                .switchIfEmpty(Mono.error(new UserNotFoundException("Пользователь '%s' не найден".formatted(login))))
                 .doOnError(throwable -> log.warn("User '{}' not found", login));
     }
 
@@ -184,7 +184,11 @@ public class UserServiceImpl implements UserService {
     public Mono<Void> updateAccounts(String login, EditAccounts editAccounts) {
         validate(editAccounts);
         return userRepository.findByLogin(login)
-                .map(user -> user.setBirthDate(editAccounts.getBirthDate()).setName(editAccounts.getName()))
+                .map(user -> {
+                    user.setName(Objects.nonNull(editAccounts.getName()) ? editAccounts.getName() : user.getName());
+                    user.setBirthDate(Objects.nonNull(editAccounts.getBirthDate()) ? editAccounts.getBirthDate() : user.getBirthDate());
+                    return user;
+                })
                 .flatMap(userRepository::save)
                 .flatMap(userEntity -> accountRepository.findAllByLogin(userEntity.getLogin())
                         .collectList()
@@ -214,12 +218,10 @@ public class UserServiceImpl implements UserService {
 
     private void validate(EditAccounts editAccounts) {
         String errorMessage = null;
-        if (!namePattern.matcher(editAccounts.getName()).matches()) {
+        if (Objects.nonNull(editAccounts.getName()) && !namePattern.matcher(editAccounts.getName()).matches()) {
             errorMessage = "Имя не соответствует шаблону [A-Za-z\\s-]+";
-        } else if (Objects.isNull(editAccounts.getBirthDate())) {
-            errorMessage = "Не указана дата рождения";
-        } else if (LocalDate.now().minusYears(minAge).isBefore(editAccounts.getBirthDate())) {
-            errorMessage = "Дата рождения %s - меньше допустимого возраста %d лет".formatted(editAccounts.getName(), minAge);
+        } else if (Objects.nonNull(editAccounts.getBirthDate()) && LocalDate.now().minusYears(minAge).isBefore(editAccounts.getBirthDate())) {
+            errorMessage = "Дата рождения %s - меньше допустимого возраста (%d лет)".formatted(editAccounts.getBirthDate(), minAge);
         }
 
         if (Objects.nonNull(errorMessage)) {

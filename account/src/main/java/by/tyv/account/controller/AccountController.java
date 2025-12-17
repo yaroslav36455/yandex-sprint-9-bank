@@ -18,12 +18,14 @@ public class AccountController {
     private final AccountMapper accountMapper;
 
     @PostMapping("/account/{login}/operation/cash")
-    public Mono<Void> cashOperation(@PathVariable("login") String login, @RequestBody OperationCashRequestDto cashRequestDto) {
+    public Mono<Void> cashOperation(@PathVariable("login") String login,
+                                    @RequestBody OperationCashRequestDto cashRequestDto) {
         return accountService.cashOperation(accountMapper.toBO(cashRequestDto).setLogin(login));
     }
 
     @PostMapping("/account/{login}/operation/transfer")
-    public Mono<Void> transferOperation(@PathVariable("login") String login, @RequestBody TransferRequestDto transferRequestDto) {
+    public Mono<Void> transferOperation(@PathVariable("login") String login,
+                                        @RequestBody TransferRequestDto transferRequestDto) {
         return accountService.transferOperation(accountMapper.toBO(transferRequestDto).setSourceLogin(login));
     }
 

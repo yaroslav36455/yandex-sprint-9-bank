@@ -263,7 +263,7 @@ public class UserControllerTest extends SpringBootIntegrationTest {
                 .isBadRequest()
                 .expectBody(ErrorResponseDto.class)
                 .value(errorResponseDto -> Assertions.assertThat(errorResponseDto.getErrorMessage())
-                        .isEqualTo("User 'SomeLogin' not found"));
+                        .isEqualTo("Пользователь 'SomeLogin' не найден"));
     }
 
     @Test

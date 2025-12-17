@@ -8,7 +8,6 @@ import by.tyv.account.model.dto.SignUpFormDto;
 import by.tyv.account.model.dto.UserInfoDto;
 import by.tyv.account.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -16,7 +15,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;

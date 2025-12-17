@@ -36,6 +36,10 @@ spring:
 clients:
   account-service:
     url: "http://yandex-sprint-9-account:8080"
+  transfer-service:
+    url: "http://yandex-sprint-9-transfer:8080"
+  cash-service:
+    url: "http://yandex-sprint-9-cash:8080"
 
 
 logging:

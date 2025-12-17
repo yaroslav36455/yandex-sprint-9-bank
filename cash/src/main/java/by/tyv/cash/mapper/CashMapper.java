@@ -9,6 +9,5 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CashMapper {
 
-    @Mapping(target = "amount", source = "value")
     OperationCashRequestDto mapToOperationRequestDto(CashRequestDto cashRequestDto);
 }

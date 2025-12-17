@@ -112,7 +112,7 @@
                         </select>
                     </td>
                     <td>
-                        <input name="value" type="number" style="width:100%" required/>
+                        <input name="amount" type="number" style="width:100%" required/>
                     </td>
                     <td>
                     <td style="text-align:right">
@@ -133,21 +133,21 @@
                     <td style="font-weight:bold;">Перевод себе</td>
                     <td>
                         Со счета
-                        <select name="from_currency">
+                        <select name="sourceCurrency">
                             <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
                         </select>
                     </td>
                     <td>
                         На счет
-                        <select name="to_currency">
+                        <select name="targetCurrency">
                             <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
                         </select>
                     </td>
                     <td>
-                        <input name="value" type="number" style="width:100%" required/>
+                        <input name="sourceAmount" type="number" style="width:100%" required/>
                     </td>
                     <td style="text-align:right">
-                        <input hidden name="to_login" th:value="${currentUser.getLogin()}"/>
+                        <input hidden name="targetLogin" th:value="${currentUser.getLogin()}"/>
                         <button>Перевести</button>
                     </td>
                 </tr>
@@ -164,22 +164,22 @@
                     <td style="font-weight:bold;">Перевод другому</td>
                     <td>
                         Со счета
-                        <select name="from_currency">
+                        <select name="sourceCurrency">
                             <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
                         </select>
                     </td>
                     <td>
                         На счет
-                        <select name="to_currency">
+                        <select name="targetCurrency">
                             <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
                         </select>
                     </td>
                     <td>
-                        <input name="value" type="number" required/>
+                        <input name="sourceAmount" type="number" required/>
                     </td>
                     <td>
                         Кому
-                        <select name="to_login">
+                        <select name="targetLogin">
                             <option th:each="user : ${users}" th:value="${user.getLogin()}" th:text="${user.getName()}"/>
                         </select>
                     </td>

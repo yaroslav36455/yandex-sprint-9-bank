@@ -5,5 +5,5 @@ import by.tyv.cash.enums.CurrencyCode;
 
 import java.math.BigDecimal;
 
-public record CashRequestDto(CurrencyCode currency, BigDecimal value, Action action) {
+public record CashRequestDto(CurrencyCode currency, BigDecimal amount, Action action) {
 }

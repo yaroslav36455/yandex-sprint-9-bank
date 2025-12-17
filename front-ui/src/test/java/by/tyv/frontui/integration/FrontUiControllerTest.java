@@ -111,7 +111,7 @@ public class FrontUiControllerTest extends SpringBootIntegrationTest {
                     assertThat(html).contains("<form method=\"post\" action=\"/user/andrew/cash\">");
                     assertThat(html).contains("<td style=\"font-weight:bold;\">Фамилия Имя</td>");
                     assertThat(html).contains("<td>Andrew</td>");
-                    assertThat(html).contains("<input hidden name=\"to_login\" value=\"andrew\"/>");
+                    assertThat(html).contains("<input hidden name=\"targetLogin\" value=\"andrew\"/>");
                     assertThat(html).contains("<option value=\"maria\">Maria</option>");
                     assertThat(html).contains("<option value=\"roman\">Roman</option>");
                 });
